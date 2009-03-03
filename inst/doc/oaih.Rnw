@@ -1,0 +1,342 @@
+\documentclass[a4paper,fleqn]{article}
+\usepackage[round,longnamesfirst]{natbib}
+\usepackage{graphicx,keyval,thumbpdf,url}
+\usepackage[utf8]{inputenc}
+\usepackage{Sweave}
+\usepackage{a4wide}
+
+% \sloppy{}
+
+% \newcommand{\XML}{\textsc{xml}}
+% If using acronym markup, include HTTP (and OAI-PMH?).
+
+\newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
+\let\code=\texttt
+\newcommand{\ePub}{ePub$^\textrm{\tiny WU}$}
+
+% \RecustomVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl, fontsize=\small}
+\RecustomVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl}
+% \RecustomVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small}
+
+\title{Metadata Harvesting with R and OAI-PMH}
+\author{Kurt Hornik}
+\date{2009-03-01}
+
+%% \VignetteIndexEntry{Metadata Harvesting with R and OAI-PMH}
+
+\begin{document}
+\maketitle{}
+
+The Open Archives Initiative (\url{http://www.openarchives.org/})
+develops and promotes interoperability standards that aim to facilitate
+the efficient dissemination of content.  One key project is the Open
+Archives Initiative Protocol for Metadata Harvesting (OAI-PMH,
+\url{http://www.openarchives.org/pmh/}) which provides ``a low-barrier
+mechanism for repository interoperability'' for archives (institutional
+repositories) containing digital content (digital libraries).  OAI-PMH
+allows people (service providers, such as the ones registered with the
+OAI listed on
+\url{http://www.openarchives.org/service/listproviders.html}) to harvest
+metadata (from data providers, such as the ones registered with and
+validated by the OAI listed on
+\url{http://www.openarchives.org/Register/BrowseSites/}).  Data Providers
+administer systems that support the OAI-PMH as a means of exposing
+metadata.  Service Providers use metadata harvested via the OAI-PMH as a
+basis for building value-added services.
+
+OAI-PMH, currently in version 2.0, defines a mechanism for data
+providers to expose their metadata.  The protocol mandates that
+individual archives map their metadata to the Dublin Core (DC,
+\url{http://dublincore.org/}), a simple and common metadata set for
+cross-domain information resource description.  OAI-PMH is a set of six
+\emph{verbs} or services that are invoked within HTTP, returning the
+request results in XML format.  The OAI-PMH specification can be found
+at \url{http://www.openarchives.org/OAI/openarchivesprotocol.html}.
+Here, we summarize the basic facts and terminology.
+
+% http://en.wikipedia.org/wiki/Open_Archives_Initiative_Protocol_for_Metadata_Harvesting
+
+A harvester is a client application that issues OAI-PMH requests.  A
+harvester is operated by a service provider as a means of collecting
+metadata from repositories.  Repositories are network accessible servers
+that can process the six OAI-PMH requests, and are managed by a data
+provider to expose metadata to harvesters.  OAI-PMH distinguishes
+between three distinct entities related to the metadata made accessible
+by the OAI-PMH:
+\begin{description}
+ \item[\emph{resource}] the object or ``stuff'' that metadata is
+  ``about''.  Its nature is outside the scope of the OAI-PMH.
+ \item[\emph{item}] a constituent of a repository from which metadata
+  about a resource can be disseminated.
+ \item[\emph{record}] metadata in a specific metadata format.  A record
+  is returned as an XML-encoded byte stream in response to a protocol
+  request to disseminate a specific metadata format from a constituent
+  item.
+\end{description}
+For each item there is an unambiguous unique identifier which is used in
+OAI-PMH requests for extracting metadata from the item.  Items may
+contain metadata in multiple formats; Dublin Core is mandatory.
+
+Selective harvesting allows harvesters to limit harvest requests to
+portions of the metadata available from a repository. The OAI-PMH
+supports selective harvesting with two types of harvesting criteria that
+may be combined in an OAI-PMH request: datestamps and membership in
+sets, an optional construct for grouping items.
+
+The XML encoding of records is organized into the following parts:
+\begin{description}
+ \item[\texttt{header}] contains the unique identifier, a datestamp (the
+  date of creation, modification or deletion of the record), zero or
+  more setSpec elements indicating the set membership of the item, and
+  an optional status attribute for indicating the withdrawal of
+  availability of the specified metadata format for the item, dependent
+  on the repository support for deletions.
+ \item[\texttt{metadata}] a single manifestation (format) of the
+  metadata from an item.
+ \item[\texttt{about}] an optional and repeatable container to hold data
+  about the metadata part of the record.  Contents of the containers
+  must conform to an XML Schema.  Common uses of these containers
+  include rights statements and provenance statements.
+\end{description}
+
+The OAI-PMH verbs (requests) are as follows.
+\begin{description}
+ \item[\texttt{GetRecord}]
+  retrieve an individual metadata record from a repository. 
+ \item[\texttt{Identify}]
+  retrieve information about a repository.
+ \item[\texttt{ListIdentifiers}] an abbreviated form of
+  \texttt{ListRecords} which retrieves only headers rather than records.
+ \item[\texttt{ListMetadataFormats}]
+  retrieve the metadata formats available from a repository, or
+  optionally the formats available for a specific item.
+ \item[\texttt{ListRecords}]
+  harvest records from a repository.
+ \item[\texttt{ListSets}]
+  retrieve the set structure of a repository.
+\end{description}
+Optional arguments to \texttt{ListRecords} and \texttt{ListIdentifiers}
+permit selective harvesting of headers based on set membership and/or
+datestamp.
+
+Some of these requests return a \emph{list} of discrete entities:
+\texttt{ListRecords} returns a list of records, \texttt{ListIdentifiers}
+returns a list of headers, and \texttt{ListSets} returns a list of
+sets.  These lists may be large, and it may be practical to partition
+them among a series of requests and responses.  Repositories may reply
+with incomplete results and a resumption token, which the harvester can
+use to issue an additional request (and repeat until completion).
+
+The R package \pkg{OAIHarvester} provides functions for performing each
+of the six OAI-PMH requests.  List requests will automatically be
+re-issued until complete results are obtained.  The names of these verb
+functions start with `\verb|oaih|' and follow a ``combine words with
+underscores'' scheme (e.g., \verb|oaih_list_records|, corresponding to
+the OAI-PMH \verb|ListRecords| verb, for harvesting records).  The
+functions return the actual (aggregated) \emph{result} of the
+repository's response to the harvester's request.
+
+In addition to these functions for performing OAI-PMH requests, function
+\verb|oaih_transform| provides functionality for transforming the XML
+results to ``useful'' R data structures for further processing or
+analysis.  The results of the verb requests are transformed by default.
+
+The ideas underlying these transformations are best illustrated for
+harvesting records.  In a list context, the result is a list of records,
+each containing the header (with identifier and datestamp and
+arbitrarily many set specs), metadata in a certain format, and
+arbitrarily many about entries.  Conceptually, we can think of
+identifier, datestamp, setSpec, metadata and about as \emph{variables}
+``observed'' for the items in the repository as cases, suggesting the
+usual rectangular case by variables data organization.  When obtaining a
+single record, it seems natural to transform to a list with these
+variables.  If the rectangular data structure were a data frame,
+selecting one row (corresponding to a single record) would not
+straightforwardly yield the single record list transformation (because
+subscripting list variables in the data frame would give length one
+sublists rather than the elements).  Thus, in the rectangular cases we
+instead treat rows and columns symmetrically by arranging data in a
+``list matrix'' (a list with a dim attribute, or equivalently, a matrix
+of list elements).  As matrix subscripting drops dimensions when a
+single row or column is selected, one gets the expected simple list
+(without a dim attribute) in these cases.  (Equivalently, the
+transformed \verb|oaih_list_records| result is the same as combining the
+transformed \verb|oaih_get_record| results by rows \verb|rbind|.)
+
+When harvesting records, identifiers and datestamps naturally transform
+to character strings, and set specs (a header may contain arbitrarily
+many of these) to character vectors.  On the other hand, metadata can be
+made available in different formats, with different ``variables''.  We
+find it more convenient to use a \emph{constant} set of variables for a
+single transformation of a certain ``kind'' of OAI-PMH XML results.
+Thus, we do not immediately transform the metadata, but instead leave
+them as lists of XML nodes to be transformed in a second stage (with
+variables differing according to the metadata format; currently,
+metadata in the Dublin Core and RFC 1807 formats can be transformed).
+
+These principles (using lists of single observations on variables and
+possibly arranging them in a rectangular way, and transforming to
+constant sets of variables) applies for all transformations of OAI-PMH
+XML results.  Transformations can be added by assigning functions in the
+(currently internal) environment \verb|oaih_transform_methods_db|.
+
+As an example consider \ePub{}, an electronic publication platform for
+research output provided by Wirtschaftsuniversit\"at Wien, which
+provides an OAI repository at
+\url{http://epub.wu-wien.ac.at/dyn/OAI/oaicgi.pl}.
+
+<<>>=
+library("OAIHarvester")
+baseurl <- "http://epub.wu-wien.ac.at/dyn/OAI/oaicgi.pl"
+@ 
+
+% If we print raw XML, ensure sanity.
+<<echo=FALSE,results=hide>>=
+require("XML")
+options(warnPartialMatchArgs = FALSE)
+options(width = 80)
+@ 
+
+We can use \verb|oaih_identify| to retrieve information about the
+repository.
+<<>>=
+x <- oaih_identify(baseurl)
+rbind(x, deparse.level = 0)
+@ 
+Here, \verb|rbind| achieves ``pretty-printing'': we can see that the
+repository provides no compression support, and 4 further description
+entries of kind
+<<>>=
+sapply(x$description, xmlName)
+@ %
+where entry 2 indicates that the repository complies with the OAI
+format for unique record identifiers:
+<<>>=
+oaih_transform(x$description[[2L]])
+@ 
+
+We can use \verb|oaih_list_metadata_formats| and \verb|oaih_list_sets|
+to find out about available metadata formats and sets:
+<<>>=
+oaih_list_metadata_formats(baseurl)
+oaih_list_sets(baseurl)
+@ 
+Only the mandatory Dublin Core format is offered, and there are two sets
+(theses and working papers) with no further description details.  In
+fact, the theses are doctorate theses.
+
+To obtain all records for the theses:
+<<>>=
+x <- oaih_list_records(baseurl, set = "theses")
+@ 
+This gives a ``list matrix'' with observations of \Sexpr{ncol(x)}
+variables on \Sexpr{nrow(x)} items:
+<<>>=
+dim(x)
+colnames(x)
+@ %
+Transforming the Dublin Core metadata is achieved by calling
+\verb|oaih_transform| on the metadata column
+<<>>=
+m <- oaih_transform(x[, "metadata"])
+dim(m)
+@ %
+giving observations on the 15 (simple) Dublin Core elements:
+<<>>=
+colnames(m)
+@ 
+
+As \ePub{} lists the supervisors in the `contributor' Dublin Core
+element,
+<<eval=FALSE>>=
+m[grep("Hornik", m[ , "contributor"]), ]
+@ %
+% Massage output ...
+<<echo=FALSE>>=
+m1 <- m[grep("Hornik", m[ , "contributor"]), ]
+m1[] <- lapply(m1,
+               function(s) {
+                   long <- nchar(s, type = "c") > 60L
+                   paste(substr(s, 1L, 60L),
+                         ifelse(long, " [truncated]", ""),
+                         sep = "")
+               })
+m1
+@ %
+can be used to obtain the metadata for doctorate theses available from
+\ePub{} and co-supervised by myself.  Note that in Dublin Core, all
+elements are optional and repeatable, so that there may be arbitrarily
+many entries for each of the 15 variables, making it natural to transform
+DC metadata to lists of character vectors.
+
+All theses are available as PDF:
+<<>>=
+table(unlist(m[, "format"]))
+@ 
+and 2008 was a very busy year for theses written in German:
+<<>>=
+table(unlist(m[, "date"]), unlist(m[, "language"]))
+@ %
+(We can recognize `\verb|ger|' as ``german'', but realize it is not the
+3-letter ISO 639-3 code we might have expected.  In fact, the Dublin
+Core specification for `language'
+(\url{http://dublincore.org/documents/dcmi-terms/#terms-language}) says
+``Recommended best practice is to use a controlled vocabulary such as
+RFC 4646'', which uses ISO 639-1 and ISO 639-2 for two and three letter
+language tags, respectively.  See e.g.\ package \pkg{ISOcodes}
+\citep{oaih:Buchta+Hornik:2008} for ISO language code details and data.)
+
+Finally, the topics of the theses are available in the `subject' DC
+variable, with comment ``Typically, the subject will be represented
+using keywords, key phrases, or classification codes. Recommended best
+practice is to use a controlled vocabulary.'' (see
+\url{http://dublincore.org/documents/dcmi-terms/#terms-subject}), but
+without a more detailed syntactic or semantic specification.
+
+Inspecting the output of \verb|m[, "subject"]|, e.g.,
+<<>>=
+m[c(2L, 5L, 6L), "subject"]
+@ 
+suggests that ``keywords'' are separated by slashes, so we can obtain
+all keywords via
+<<>>=
+sep <- "[[:space:]]*/[[:space:]]*"
+keywords_by_thesis <- strsplit(unlist(m[, "subject"]), sep)
+keywords <- unlist(keywords_by_thesis)
+@ 
+giving a total of \Sexpr{length(keywords)} keywords.  Most of these only
+occur once:
+<<>>=
+counts <- table(keywords)
+table(counts)
+@ 
+(re-iterating the above comment on using controlled vocabularies).  The
+most frequently used keywords are
+<<>>=
+sort(counts[counts >= 3L], decreasing = TRUE)
+@ 
+which unfortunately does not include `R': but there is at least one such
+entry
+<<>>=
+counts["R"]
+@ 
+from David Meyer's 2003 thesis
+<<>>=
+m[sapply(keywords_by_thesis, function(kw) any(kw == "R")),
+  c("title", "creator")]
+@ 
+whereas Ingo Feinerer's thesis on text mining (describing in particular
+the R text mining infrastructure provided by package \pkg{tm}
+\citep{oaih:Feinerer:2008, oaih:Feinerer+Hornik+Meyer:2008}) has
+<<>>=
+m[grep("^Feinerer", unlist(m[, "creator"])),
+  c("title", "creator", "subject")]
+@ 
+(again re-iterating the above comment about controlled vocabularies).
+
+{\small
+  \bibliographystyle{abbrvnat}
+  \bibliography{oaih}
+}
+
+\end{document}
