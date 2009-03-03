@@ -23,20 +23,18 @@ oaih_transform(x)
   ``list context''.
 }
 \examples{
-if(!is.null(nsl("epub.wu-wien.ac.at"))) {
-    baseurl <- "http://epub.wu-wien.ac.at/dyn/OAI/oaicgi.pl"
-    ## Get a single record to save bandwidth.
-    x <- oaih_get_record(baseurl,
-                         "oai:epub.wu-wien.ac.at:epub-wu-01_c4e",
-                         transform = FALSE)
-    ## The result of the request is a single OAI-PMH XML <record> node:
-    x
-    ## Transform this (turning identifier, datestamp and setSpec into
-    ## character data):
-    x <- oaih_transform(x)
-    x    
-    ## This has its metadata in the default Dublin Core form, encoded in
-    ## XML.  Transform these to character data:
-    oaih_transform(x$metadata)
-}
+baseurl <- "http://epub.wu-wien.ac.at/dyn/OAI/oaicgi.pl"
+## Get a single record to save bandwidth.
+x <- oaih_get_record(baseurl,
+                     "oai:epub.wu-wien.ac.at:epub-wu-01_c4e",
+                     transform = FALSE)
+## The result of the request is a single OAI-PMH XML <record> node:
+x
+## Transform this (turning identifier, datestamp and setSpec into
+## character data):
+x <- oaih_transform(x)
+x    
+## This has its metadata in the default Dublin Core form, encoded in
+## XML.  Transform these to character data:
+oaih_transform(x$metadata)
 }

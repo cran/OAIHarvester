@@ -48,20 +48,18 @@ oaih_list_sets(baseurl, transform = TRUE)
 }
 \examples{
 ## Harvest Epub@WU metadata.
-if(!is.null(nsl("epub.wu-wien.ac.at"))) {
-    baseurl <- "http://epub.wu-wien.ac.at/dyn/OAI/oaicgi.pl"
-    ## Identify.
-    oaih_identify(baseurl)
-    ## List metadata formats.
-    oaih_list_metadata_formats(baseurl)
-    ## List sets.
-    oaih_list_sets(baseurl)
-    ## List records in the 'theses' set.
-    x <- oaih_list_records(baseurl, set = "theses")
-    ## Extract the metadata.
-    m <- oaih_transform(x[, "metadata"])
-    ## Cross-tabulate year and language.
-    table(Year = unlist(m[, "date"]),
-          Language = unlist(m[, "language"]))
-}
+baseurl <- "http://epub.wu-wien.ac.at/dyn/OAI/oaicgi.pl"
+## Identify.
+oaih_identify(baseurl)
+## List metadata formats.
+oaih_list_metadata_formats(baseurl)
+## List sets.
+oaih_list_sets(baseurl)
+## List records in the 'theses' set.
+x <- oaih_list_records(baseurl, set = "theses")
+## Extract the metadata.
+m <- oaih_transform(x[, "metadata"])
+## Cross-tabulate year and language.
+table(Year = unlist(m[, "date"]),
+      Language = unlist(m[, "language"]))
 }
