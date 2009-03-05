@@ -2,6 +2,7 @@
 \usepackage[round,longnamesfirst]{natbib}
 \usepackage{graphicx,keyval,thumbpdf,url}
 \usepackage[utf8]{inputenc}
+\usepackage{hyperref}
 \usepackage{Sweave}
 \usepackage{a4wide}
 
