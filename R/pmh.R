@@ -6,9 +6,15 @@ OAI_PMH_issue_request <-
 function(baseurl, request)
 {
     request <- paste(request, collapse = "&")
+    ## <FIXME>
+    ## Could also use
+    ##    con <- gzcon(url(......))
+    ## but does this necessarily work if the repository does not feature
+    ## gzip compression, and does it make a real difference if it does?
     con <- url(URLencode(paste(baseurl, request, sep = "?")))
+    ## </FIXME>
     on.exit(close(con))
-    lines <- readLines(con)
+    lines <- readLines(con, warn = FALSE)
     ## http://www.openarchives.org/OAI/2.0/openarchivesprotocol.htm says
     ## that the XML responses to OAI-PMH requests have the following
     ## common markup:
@@ -40,6 +46,9 @@ function(baseurl, request)
     ## accumulation as necessary ...
 
     nodes <- xmlTreeParse(lines, asText = TRUE)
+
+    ## It would be nice to use internal nodes and xmlPathApply for
+    ## more efficiently extracting nodes ... 
 
     result <- OAI_PMH_get_result(nodes)
 

@@ -138,9 +138,12 @@ functions return the actual (aggregated) \emph{result} of the
 repository's response to the harvester's request.
 
 In addition to these functions for performing OAI-PMH requests, function
-\verb|oaih_transform| provides functionality for transforming the XML
-results to ``useful'' R data structures for further processing or
-analysis.  The results of the verb requests are transformed by default.
+\verb|oaih_harvest| is a high-level harvester which allows specifying
+several metadata formats or sets, and giving datestamps as Date or
+POSIXt date/time objects.  Finally, function \verb|oaih_transform|
+provides functionality for transforming the XML results to ``useful'' R
+data structures for further processing or analysis.  The results of the
+verb requests are transformed by default.
 
 The ideas underlying these transformations are best illustrated for
 harvesting records.  In a list context, the result is a list of records,

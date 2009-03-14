@@ -2,8 +2,9 @@
 \alias{oaih_transform}
 \title{Transform OAI-PMH XML Results}
 \description{
-  Transform OAI-PMH XML results to ``useful'' R data structures (lists
-  of character vectors or XML nodes) for further processing or analysis.
+  Transform OAI-PMH XML results to \dQuote{useful} R data structures
+  (lists of character vectors or XML nodes) for further processing or
+  analysis.
 }
 \usage{
 oaih_transform(x)
@@ -12,15 +13,15 @@ oaih_transform(x)
   \item{x}{an XML node, or a list of character vectors or XML nodes.}
 }
 \details{
-  In a ``list context'', i.e., if \code{x} conceptually contains
-  information on several cases, transformation gives a ``list matrix''
-  (a list of character vector or XML node observations with a dim
-  attribute) providing a rectangular case by variables data layout;
+  In a \dQuote{list context}, i.e., if \code{x} conceptually contains
+  information on several cases, transformation gives a \dQuote{list
+    matrix} (a list of character vector or XML node observations with a
+  dim attribute) providing a rectangular case by variables data layout;
   otherwise, a list of variables.  See the vignette for details.
 }
 \value{
   A list of character vectors or XML nodes, arranged as a matrix in the
-  ``list context''.
+  \dQuote{list context}.
 }
 \examples{
 baseurl <- "http://epub.wu-wien.ac.at/dyn/OAI/oaicgi.pl"
