@@ -68,3 +68,29 @@ function(n, default)
 .xml_value_if_not_empty <-
 function(n)
     if(length(v <- xmlValue(n))) v else ""
+
+.OAI_PMH_UTC_date_stamp <-
+function(x, times_ok = TRUE)
+{
+    ## This could also be used in oaih_list_records(), either with a
+    ## times_ok = TRUE default (users should know what they do in case
+    ## they give a date/time object ...).  Alternatively, in case users
+    ## give from/to and we want to be nice, we could query the
+    ## repository ... 
+    
+    if(inherits(x, "POSIXt")) {
+        ## Convert to GMT.
+        x <- as.POSIXlt(x, tz = "GMT")
+        x <- strftime(x, if(times_ok) "%FT%TZ" else "%F")
+    }
+    else {
+        x <- as.character(x)
+        if(!times_ok && (nchar(x) > 10L)) {
+            warning("Repository only supports dates.")
+            x <- substring(x, 1L, 10L)
+        }
+    }
+    
+    x
+}
+

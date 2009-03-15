@@ -104,7 +104,9 @@ function(x)
     list_type_node_names <-
         c("ListIdentifiers", "ListMetadataFormats", "ListRecords",
           "ListSets")
-    if(inherits(x, "XMLNode")) {
+    ## Internal nodes would not inherit from XMLNode ...
+    xml_node_classes <- c("XMLNode", "XMLAbstractNode")
+    if(inherits(x, xml_node_classes)) {
         if(xmlName(x) %in% list_type_node_names)
             .oaih_vtransform(xmlChildren(x))
         else
@@ -115,7 +117,7 @@ function(x)
             stop("Can only transform lists and XML nodes")
         else if(all(sapply(x, is.character)))
             return(x)
-        else if(!all(sapply(x, inherits, "XMLNode")))
+        else if(!all(sapply(x, inherits, xml_node_classes)))
             stop("Can only transform lists of XML nodes or character vectors")
         .oaih_vtransform(x)
     }

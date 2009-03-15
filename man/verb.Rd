@@ -39,12 +39,12 @@ oaih_list_sets(baseurl, transform = TRUE)
   \item{set}{a character string giving a set to be used for selective
     harvesting (i.e., only harvest records in the given set).}
   \item{transform}{a logical indicating whether the OAI-PMH XML results
-    to ``useful'' R data structures via \code{\link{oaih_transform}}.
+    to \dQuote{useful} R data structures via \code{\link{oaih_transform}}.
     Default: true.}
 }
 \value{
   If the OAI-PMH request was successful, the result of the request as
-  XML or (default) transformed to ``useful'' R data structures.
+  XML or (default) transformed to \dQuote{useful} R data structures.
 }
 \examples{
 ## Harvest Epub@WU metadata.
