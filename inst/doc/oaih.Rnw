@@ -21,7 +21,7 @@
 
 \title{Metadata Harvesting with R and OAI-PMH}
 \author{Kurt Hornik}
-\date{2009-03-01}
+\date{2009-07-30}
 
 %% \VignetteIndexEntry{Metadata Harvesting with R and OAI-PMH}
 
@@ -176,7 +176,9 @@ single transformation of a certain ``kind'' of OAI-PMH XML results.
 Thus, we do not immediately transform the metadata, but instead leave
 them as lists of XML nodes to be transformed in a second stage (with
 variables differing according to the metadata format; currently,
-metadata in the Dublin Core and RFC 1807 formats can be transformed).
+metadata in the Dublin Core and RFC 1807
+(\url{http://www.rfc-editor.org/rfc/rfc1807.txt}) formats can be
+transformed).
 
 These principles (using lists of single observations on variables and
 possibly arranging them in a rectangular way, and transforming to
@@ -286,9 +288,10 @@ table(unlist(m[, "date"]), unlist(m[, "language"]))
 Core specification for `language'
 (\url{http://dublincore.org/documents/dcmi-terms/#terms-language}) says
 ``Recommended best practice is to use a controlled vocabulary such as
-RFC 4646'', which uses ISO 639-1 and ISO 639-2 for two and three letter
-language tags, respectively.  See e.g.\ package \pkg{ISOcodes}
-\citep{oaih:Buchta+Hornik:2008} for ISO language code details and data.)
+RFC 4646'', which (see \url{http://www.rfc-editor.org/rfc/rfc4646.txt})
+uses ISO 639-1 and ISO 639-2 for two and three letter language tags,
+respectively.  See e.g.\ package \pkg{ISOcodes}
+\citep{oaih:Buchta+Hornik:2009} for ISO language code details and data.)
 
 Finally, the topics of the theses are available in the `subject' DC
 variable, with comment ``Typically, the subject will be represented
