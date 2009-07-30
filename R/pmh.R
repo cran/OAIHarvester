@@ -5,6 +5,7 @@
 OAI_PMH_issue_request <-
 function(baseurl, request)
 {
+    verbose <- getOption("verbose")
     request <- paste(request, collapse = "&")
     ## <FIXME>
     ## Could also use
@@ -14,6 +15,8 @@ function(baseurl, request)
     con <- url(URLencode(paste(baseurl, request, sep = "?")))
     ## </FIXME>
     on.exit(close(con))
+    if(verbose)
+        message(gettextf("Performing request '%s'", request))
     lines <- readLines(con, warn = FALSE)
     ## http://www.openarchives.org/OAI/2.0/openarchivesprotocol.htm says
     ## that the XML responses to OAI-PMH requests have the following
