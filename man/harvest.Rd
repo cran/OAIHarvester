@@ -17,9 +17,9 @@ oaih_harvest(baseurl,
     should be obtained, or \code{NULL}, indicating all available
     formats.  The default (\code{"oai_dc"}) corresponds to the mandatory
     OAI unqualified Dublin Core metadata schema.}
-  \item{from, until}{character strings or \link[Date]{Date} or
-    \link[DateTimeClasses]{POSIXt date/time objects} giving datestamps
-    to be used as lower or upper bounds, respectively, for
+  \item{from, until}{character strings or \link[base:Dates]{Date} or
+    \link[base:DateTimeClasses]{POSIXt date/time objects} giving
+    datestamps to be used as lower or upper bounds, respectively, for
     datestamp-based selective harvesting (i.e., only harvest only
     records with datestamps in the given range).  If character, dates
     and times must be encoded using ISO 8601 in either \samp{\%F} or
