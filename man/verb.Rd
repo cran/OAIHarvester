@@ -35,7 +35,8 @@ oaih_list_sets(baseurl, transform = TRUE)
     given range).  Dates and times must be encoded using ISO 8601 in
     either \samp{\%F} or \samp{\%FT\%TZ} format (see
     \code{\link{strptime}}).  The trailing \samp{Z} must be used when 
-    including time.  OAI-PMH implies UTC for data/time specifications.}
+    including time.  OAI-PMH implies \acronym{UTC} for data/time
+    specifications.}
   \item{set}{a character string giving a set to be used for selective
     harvesting (i.e., only harvest records in the given set).}
   \item{transform}{a logical indicating whether the OAI-PMH XML results

@@ -59,7 +59,7 @@ function(baseurl, request)
         msg <- sprintf("Received condition '%s'",
                        xmlAttrs(result)["code"])
         txt <- xmlValue(result)
-        if(nzchar(txt))
+        if(length(txt) && nzchar(txt))
             msg <- paste(msg, sprintf("with diagnostic:\n%s", txt))
         stop(msg)
     }
