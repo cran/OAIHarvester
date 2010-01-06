@@ -79,7 +79,7 @@ function(nodes)
     xmlRoot(nodes)[[3L]]
 
 OAI_PMH_gather_request_results <-
-function(baseurl, request)
+function(baseurl, request, transform = FALSE)
 {
     ## Gather request results unless complete (no more resumption
     ## tokens) and return the aggregated "result" of the request(s).
@@ -89,6 +89,10 @@ function(baseurl, request)
     result <- OAI_PMH_get_result(nodes)
     verb <- OAI_PMH_get_verb(nodes)
     kids <- xmlChildren(result)
+
+    ## Even without transforming, it seems better to gather request
+    ## results in a list, and combine at the end.
+    chunks <- list()
     repeat {
         size <- length(kids)
         ## Assume that the resumption token comes last.
@@ -101,15 +105,26 @@ function(baseurl, request)
             ## Done iff the resumption token is "empty".
             !length(token <- xmlValue(last))
         }
+        if(transform)
+            kids <- oaih_transform(kids)
+        chunks <- c(chunks, list(kids))
         if(done) break
         nodes <-
             OAI_PMH_issue_request(baseurl,
                                   sprintf("verb=%s&resumptionToken=%s",
                                           verb, token))
-        kids <- c(kids, xmlChildren(OAI_PMH_get_result(nodes)))
+        kids <- xmlChildren(OAI_PMH_get_result(nodes))
     }
-    
-    xmlChildren(result) <- kids
-    result
-}
 
+    if(transform) {
+        result <- do.call("rbind", chunks)
+    } else {
+        chunks <- unlist(chunks, recursive = FALSE, use.names = FALSE)
+        ## Using
+        ##   xmlChildren(result) <- chunks
+        ## adds names and hence duplicates storage ...
+        result$children <- chunks
+    }
+
+    result    
+}

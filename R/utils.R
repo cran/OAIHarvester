@@ -46,7 +46,7 @@ function(x, names = NULL)
 
 .elements_named <-
 function(x, name)
-    structure(x[names(x) == name], names = NULL)
+    .structure(x[names(x) == name], names = NULL)
 
 ## <FIXME>
 ## Is the distinction between getting a single "any" node and all "any"
@@ -94,3 +94,6 @@ function(x, times_ok = TRUE)
     x
 }
 
+.structure <-
+function(x, ...)
+    `attributes<-`(x, c(attributes(x), list(...)))

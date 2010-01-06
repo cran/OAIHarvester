@@ -35,8 +35,7 @@ function(baseurl, prefix = "oai_dc",
           if(!is.null(from)) sprintf("from=%s", from),
           if(!is.null(until)) sprintf("until=%s", until),
           if(!is.null(set)) sprintf("set=%s", set))
-    result <- OAI_PMH_gather_request_results(baseurl, request)
-    if(transform) oaih_transform(result) else result    
+    OAI_PMH_gather_request_results(baseurl, request, transform)
 }
 
 oaih_list_metadata_formats <-
@@ -61,14 +60,12 @@ function(baseurl, prefix = "oai_dc",
           if(!is.null(from)) sprintf("from=%s", from),
           if(!is.null(until)) sprintf("until=%s", until),
           if(!is.null(set)) sprintf("set=%s", set))
-    result <- OAI_PMH_gather_request_results(baseurl, request)
-    if(transform) oaih_transform(result) else result    
+    OAI_PMH_gather_request_results(baseurl, request, transform)
 }
          
 oaih_list_sets <-
 function(baseurl, transform = TRUE)
 {
-    result <- OAI_PMH_gather_request_results(baseurl, "verb=ListSets")
-    if(transform) oaih_transform(result) else result    
+    request <- "verb=ListSets"
+    OAI_PMH_gather_request_results(baseurl, request, transform)
 }
-
