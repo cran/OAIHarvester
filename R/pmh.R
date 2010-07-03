@@ -7,17 +7,63 @@ function(baseurl, request)
 {
     verbose <- getOption("verbose")
     request <- paste(request, collapse = "&")
+
     ## <FIXME>
-    ## Could also use
-    ##    con <- gzcon(url(......))
-    ## but does this necessarily work if the repository does not feature
-    ## gzip compression, and does it make a real difference if it does?
-    con <- url(URLencode(paste(baseurl, request, sep = "?")))
+    ## Add support for compression eventually ...
     ## </FIXME>
-    on.exit(close(con))
+    
+    url <- URLencode(paste(baseurl, request, sep = "?"))
+
     if(verbose)
         message(gettextf("Performing request '%s'", request))
-    lines <- readLines(con, warn = FALSE)
+
+    ## <FIXME>
+    ## Hard-wire UTF-8 for now: as of 2010-07-03, otherwise e.g.
+    ##   u <- "http://epub.wu-wien.ac.at/dyn/OAI/oaicgi.pl?verb=GetRecord&identifier=oai:epub.wu-wien.ac.at:epub-wu-01_e41&metadataPrefix=oai_dc"
+    ##   x <- unlist(strsplit(RCurl::getURL(u, header = FALSE), "\n"))
+    ## has encoding problems ...
+    ans <- getURL(url, header = TRUE, .encoding = "UTF-8")
+    ## </FIXME>
+    ## Look at the header first to see if we succeeded.
+    lines <- strsplit(ans, "\\r\\n")[[1L]]
+    i <- (which(lines == "")[1L])
+    h <- parseHTTPHeader(lines[1L : (i - 1L)])
+    ## OAI-PMH says the Content-Type returned for OAI-PMH requests must
+    ## be text/xml (even in the case of non-OK status codes?).  So let
+    ## us look at the HTTP status codes directly.
+    if((s <- h["status"]) != "200") {
+        ## OAI-PMH says certain status codes may be useful for load
+        ## balancing.
+        ##   503 - Service unavailable, a Retry-After period is
+        ##   specified.  Harvesters should wait this period before
+        ##   attempting another OAI-PMH request.
+        ##   302 - Allows the repository to temporarily redirect an
+        ##   OAI-PMH request to another repository. The URI of the
+        ##   temporary repository should be given by the Location field
+        ##   in the HTTP response.
+        if((s == "503") && !is.na(t <- h["Retry-After"])) {
+            if(verbose)
+                message(gettextf("Need to retry after %s seconds", t))
+            Sys.sleep(t)
+            return(Recall(baseurl, request))
+        } else if((s == "203") && !is.na(l <- h["Location"])) {
+            if(verbose)
+                message(gettextf("Need to redirect to %s", l))
+            return(Recall(l, request))
+        } else {
+            msg <-
+                sprintf("OAI-PMH request failed with HTTP status code %s",
+                        s)
+            txt <- h["statusMessage"]
+            if(!is.na(txt))
+                msg <- paste(msg, sprintf("and message:\n%s", txt))
+            stop(msg)
+        }
+    }
+
+    ## Proceed with body.
+    lines <- lines[- (1L : i) ]
+
     ## http://www.openarchives.org/OAI/2.0/openarchivesprotocol.htm says
     ## that the XML responses to OAI-PMH requests have the following
     ## common markup:
