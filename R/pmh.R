@@ -15,7 +15,7 @@ function(baseurl, request)
     url <- URLencode(paste(baseurl, request, sep = "?"))
 
     if(verbose)
-        message(gettextf("Performing request '%s'", request))
+        message(gettextf("Performing request '%s'", url))
 
     ## <FIXME>
     ## Hard-wire UTF-8 for now: as of 2010-07-03, otherwise e.g.
@@ -24,6 +24,20 @@ function(baseurl, request)
     ## has encoding problems ...
     ans <- getURL(url, header = TRUE, .encoding = "UTF-8")
     ## </FIXME>
+    
+    ## <NOTE>
+    ## E.g,
+    ##   http://CRAN.R-project.org/oai
+    ## redirects to
+    ##   http://cran.R-project.org:8080/repo/CRANpackages
+    ## One can handle such redirections using followlocation = TRUE:
+    ## however, when used together with header = TRUE, this gives the
+    ## headers from *all* requested pages ... giving some 3xx code.
+    ## Hence, we handle the 3xx codes which indicate locations to
+    ## redirect ourselves.  See e.g. "HTTP status codes 3xx" in
+    ##   http://en.wikipedia.org/wiki/URL_redirection
+    ## </NOTE>
+    
     ## Look at the header first to see if we succeeded.
     lines <- strsplit(ans, "\\r\\n")[[1L]]
     i <- (which(lines == "")[1L])
@@ -41,15 +55,17 @@ function(baseurl, request)
         ##   OAI-PMH request to another repository. The URI of the
         ##   temporary repository should be given by the Location field
         ##   in the HTTP response.
+        ## See above for URL directions.
         if((s == "503") && !is.na(t <- h["Retry-After"])) {
             if(verbose)
                 message(gettextf("Need to retry after %s seconds", t))
             Sys.sleep(t)
             return(Recall(baseurl, request))
-        } else if((s == "203") && !is.na(l <- h["Location"])) {
-            if(verbose)
-                message(gettextf("Need to redirect to %s", l))
-            return(Recall(l, request))
+        } else if((s %in% c("300", "301", "302", "303", "307"))
+                  && !is.na(l <- h["Location"])) {
+             if(verbose)
+                 message(gettextf("Need to redirect to %s", l))
+             return(Recall(sub("[?].*", "", l), request))
         } else {
             msg <-
                 sprintf("OAI-PMH request failed with HTTP status code %s",
