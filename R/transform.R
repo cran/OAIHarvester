@@ -268,7 +268,7 @@ function(x)
           lapply(x,
                  function(kid)
                  as.character(sapply(kid[names(kid) == "setSpec"],
-                                     xmlValue))))
+                                     .xml_value_in_utf8))))
 }
 
 oaih_transform_methods_db$metadataFormat <-

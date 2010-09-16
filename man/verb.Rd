@@ -48,19 +48,23 @@ oaih_list_sets(baseurl, transform = TRUE)
   XML or (default) transformed to \dQuote{useful} R data structures.
 }
 \examples{
-## Harvest Epub@WU metadata.
-baseurl <- "http://epub.wu-wien.ac.at/dyn/OAI/oaicgi.pl"
+## Harvest ePubWU metadata.
+baseurl <- "http://epub.wu.ac.at/cgi/oai2"
 ## Identify.
 oaih_identify(baseurl)
 ## List metadata formats.
 oaih_list_metadata_formats(baseurl)
 ## List sets.
-oaih_list_sets(baseurl)
+sets <- oaih_list_sets(baseurl)
+sets
 ## List records in the 'theses' set.
-x <- oaih_list_records(baseurl, set = "theses")
-## Extract the metadata.
-m <- oaih_transform(x[, "metadata"])
-## Cross-tabulate year and language.
-table(Year = unlist(m[, "date"]),
-      Language = unlist(m[, "language"]))
+spec <- unlist(sets[sets[, "setName"] == "Type = Thesis", "setSpec"])
+x <- oaih_list_records(baseurl, set = spec)
+## Drop deleted records and extract the metadata.
+m <- x[, "metadata"]
+m <- oaih_transform(m[sapply(m, length) > 0L])
+## Find the most frequent keywords.
+sep <- "[[:space:]]*/[[:space:]]*"
+keywords <- unlist(strsplit(unlist(m[, "subject"]), sep))
+head(sort(table(keywords), decreasing = TRUE))
 }

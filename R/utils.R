@@ -61,13 +61,33 @@ function(x, name)
 function(x, name)
     lapply(.elements_named(x, name), `[[`, 1L)
 
+## <NOTE>
+## Damn.
+## All of OAI-PMH is UTF-8.
+## We use getURL with .encoding = "UTF-8" and the XML we get starts with
+##   "<?xml version='1.0' encoding='UTF-8'?>"
+## but nevertheless xmlTreeParse() and subsequent xmlValue() only return
+## strings with encoding "unknown" (2010-09-15).
+## The encoding argument to xmlValue() seems unused ...
+## Hence, try adding the encoding back in ...
+
 .xml_value_if_not_null <-
 function(n, default)
-    if(!is.null(n)) xmlValue(n) else default
+    if(!is.null(n)) .xml_value_in_utf8(n) else default
 
 .xml_value_if_not_empty <-
 function(n)
-    if(length(v <- xmlValue(n))) v else ""
+    if(length(v <- .xml_value_in_utf8(n))) v else ""
+
+.xml_value_in_utf8 <-
+function(n)
+{
+    v <- xmlValue(n)
+    if(is.character(v))
+        Encoding(v) <- "UTF-8"
+    v
+}
+## </NOTE>
 
 .OAI_PMH_UTC_date_stamp <-
 function(x, times_ok = TRUE)

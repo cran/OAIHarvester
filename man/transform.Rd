@@ -24,10 +24,10 @@ oaih_transform(x)
   \dQuote{list context}.
 }
 \examples{
-baseurl <- "http://epub.wu-wien.ac.at/dyn/OAI/oaicgi.pl"
+baseurl <- "http://epub.wu.ac.at/cgi/oai2"
 ## Get a single record to save bandwidth.
 x <- oaih_get_record(baseurl,
-                     "oai:epub.wu-wien.ac.at:epub-wu-01_c4e",
+                     "oai:epub.wu-wien.ac.at:852",
                      transform = FALSE)
 ## The result of the request is a single OAI-PMH XML <record> node:
 x
