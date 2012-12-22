@@ -19,7 +19,7 @@ function(baseurl, request)
 
     ## <FIXME>
     ## Hard-wire UTF-8 for now: as of 2010-07-03, otherwise e.g.
-    ##   u <- "http://epub.wu-wien.ac.at/dyn/OAI/oaicgi.pl?verb=GetRecord&identifier=oai:epub.wu-wien.ac.at:epub-wu-01_e41&metadataPrefix=oai_dc"
+    ##   u <- "http://epub.wu.ac.at/cgi/oai2?verb=GetRecord&identifier=oai:epub.wu-wien.ac.at:52&metadataPrefix=oai_dc"
     ##   x <- unlist(strsplit(RCurl::getURL(u, header = FALSE), "\n"))
     ## has encoding problems ...
     ans <- getURL(url, header = TRUE, .encoding = "UTF-8")

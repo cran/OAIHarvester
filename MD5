@@ -1,0 +1,15 @@
+0492fc0bf9a30fbdcf802d9f662d021b *DESCRIPTION
+cb9c28b4449e378ed3b2a245c9e6e87d *NAMESPACE
+061ab780d6ea162f119e340eed9c8885 *R/apply.R
+a3fbe05285b9867f83853ab224e7197c *R/harvest.R
+7c6bccecefce97f8487fcfc9103119d1 *R/pmh.R
+8b387a0dfd714e99f7873bfd7a5a8438 *R/transform.R
+4d12a4667b9fdb34978a90d81d2231bf *R/utils.R
+e3cb5b6e367bf0353546cf0eda005baa *R/verb.R
+73fd7f00e56a9a65bb4cc2ccc4b76f10 *inst/doc/oaih.Rnw
+1880c5ec57306158f7f56fc7d992c243 *inst/doc/oaih.pdf
+84ec434b1fe91df603bc507b18d666d6 *man/harvest.Rd
+b762d4abab9e2922005722be0e8d65a6 *man/transform.Rd
+7d60113b9f1a5acd693fad0fd0a79b8e *man/verb.Rd
+73fd7f00e56a9a65bb4cc2ccc4b76f10 *vignettes/oaih.Rnw
+b16968c07cebf604b41170c64f43dde9 *vignettes/oaih.bib
