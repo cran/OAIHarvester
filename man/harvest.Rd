@@ -6,8 +6,8 @@
   Metadata Harvesting (OAI-PMH) requests.
 }
 \usage{
-oaih_harvest(baseurl,
-             prefix = "oai_dc", from = NULL, until = NULL, set = NULL,
+oaih_harvest(baseurl, prefix = "oai_dc",
+             from = NULL, until = NULL, set = NULL,
              transform = TRUE)
 }
 \arguments{
