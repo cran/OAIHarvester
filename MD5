@@ -1,4 +1,4 @@
-0492fc0bf9a30fbdcf802d9f662d021b *DESCRIPTION
+106631e20f5d1da8ddcd3d3784cf36e0 *DESCRIPTION
 cb9c28b4449e378ed3b2a245c9e6e87d *NAMESPACE
 061ab780d6ea162f119e340eed9c8885 *R/apply.R
 a3fbe05285b9867f83853ab224e7197c *R/harvest.R
@@ -7,9 +7,9 @@ a3fbe05285b9867f83853ab224e7197c *R/harvest.R
 4d12a4667b9fdb34978a90d81d2231bf *R/utils.R
 e3cb5b6e367bf0353546cf0eda005baa *R/verb.R
 73fd7f00e56a9a65bb4cc2ccc4b76f10 *inst/doc/oaih.Rnw
-1880c5ec57306158f7f56fc7d992c243 *inst/doc/oaih.pdf
-84ec434b1fe91df603bc507b18d666d6 *man/harvest.Rd
+dbb5085c13be2846646a3c7aafd5b414 *inst/doc/oaih.pdf
+25b5d995aaca9ad80dc96d252b447417 *man/harvest.Rd
 b762d4abab9e2922005722be0e8d65a6 *man/transform.Rd
-7d60113b9f1a5acd693fad0fd0a79b8e *man/verb.Rd
+547131da5bc9c3a0f1d9accd69b7f3df *man/verb.Rd
 73fd7f00e56a9a65bb4cc2ccc4b76f10 *vignettes/oaih.Rnw
 b16968c07cebf604b41170c64f43dde9 *vignettes/oaih.bib

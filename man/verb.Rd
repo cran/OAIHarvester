@@ -11,11 +11,13 @@
   (OAI-PMH) requests for harvesting repositories.
 }
 \usage{
-oaih_get_record(baseurl, identifier, prefix = "oai_dc", transform = TRUE)
+oaih_get_record(baseurl, identifier, prefix = "oai_dc",
+                transform = TRUE)
 oaih_identify(baseurl, transform = TRUE)
 oaih_list_identifiers(baseurl, prefix = "oai_dc", from = NULL,
                       until = NULL, set = NULL, transform = TRUE)
-oaih_list_metadata_formats(baseurl, identifier = NULL, transform = TRUE)
+oaih_list_metadata_formats(baseurl, identifier = NULL,
+                           transform = TRUE)
 oaih_list_records(baseurl, prefix = "oai_dc", from = NULL,
                   until = NULL, set = NULL, transform = TRUE)
 oaih_list_sets(baseurl, transform = TRUE)
