@@ -20,9 +20,9 @@ oaih_harvest(baseurl, prefix = "oai_dc",
   \item{from, until}{character strings or \link[base:Dates]{Date} or
     \link[base:DateTimeClasses]{POSIXt date/time objects} giving
     datestamps to be used as lower or upper bounds, respectively, for
-    datestamp-based selective harvesting (i.e., only harvest only
-    records with datestamps in the given range).  If character, dates
-    and times must be encoded using ISO 8601 in either \samp{\%F} or
+    datestamp-based selective harvesting (i.e., only harvest records
+    with datestamps in the given range).  If character, dates and times
+    must be encoded using ISO 8601 in either \samp{\%F} or
     \samp{\%FT\%TZ} format (see \code{\link{strptime}}).  The trailing
     \samp{Z} must be used when including time.  OAI-PMH implies
     \acronym{UTC} for data/time specifications.}

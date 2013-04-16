@@ -8,4 +8,6 @@ export("oaih_get_record",
        "oaih_list_records",
        "oaih_list_sets",
        "oaih_transform",
-       "oaih_harvest")
+       "oaih_harvest",
+       "oaih_providers",
+       "oaih_size")
