@@ -17,13 +17,7 @@ function(baseurl, request)
     if(verbose)
         message(gettextf("Performing request '%s'", url))
 
-    ## <FIXME>
-    ## Hard-wire UTF-8 for now: as of 2010-07-03, otherwise e.g.
-    ##   u <- "http://epub.wu.ac.at/cgi/oai2?verb=GetRecord&identifier=oai:epub.wu-wien.ac.at:52&metadataPrefix=oai_dc"
-    ##   x <- unlist(strsplit(RCurl::getURL(u, header = FALSE), "\n"))
-    ## has encoding problems ...
-    ans <- getURL(url, header = TRUE, .encoding = "UTF-8")
-    ## </FIXME>
+    ans <- GET()(url)
     
     ## <NOTE>
     ## E.g,
@@ -37,11 +31,9 @@ function(baseurl, request)
     ## redirect ourselves.  See e.g. "HTTP status codes 3xx" in
     ##   http://en.wikipedia.org/wiki/URL_redirection
     ## </NOTE>
-    
+
     ## Look at the header first to see if we succeeded.
-    lines <- strsplit(ans, "\\r\\n")[[1L]]
-    i <- (which(lines == "")[1L])
-    h <- parseHTTPHeader(lines[1L : (i - 1L)])
+    h <- ans$header
     ## OAI-PMH says the Content-Type returned for OAI-PMH requests must
     ## be text/xml (even in the case of non-OK status codes?).  So let
     ## us look at the HTTP status codes directly.
@@ -59,7 +51,7 @@ function(baseurl, request)
         if((s == "503") && !is.na(t <- h["Retry-After"])) {
             if(verbose)
                 message(gettextf("Need to retry after %s seconds", t))
-            Sys.sleep(t)
+            Sys.sleep(as.numeric(t) + 1L)
             return(Recall(baseurl, request))
         } else if((s %in% c("300", "301", "302", "303", "307"))
                   && !is.na(l <- h["Location"])) {
@@ -78,8 +70,7 @@ function(baseurl, request)
     }
 
     ## Proceed with body.
-    lines <- lines[- (1L : i) ]
-
+    
     ## http://www.openarchives.org/OAI/2.0/openarchivesprotocol.htm says
     ## that the XML responses to OAI-PMH requests have the following
     ## common markup:
@@ -110,21 +101,15 @@ function(baseurl, request)
     ## tree.  Let specific request issuers handle the resumptionToken
     ## accumulation as necessary ...
 
-    nodes <- xmlTreeParse(lines, asText = TRUE)
+    nodes <- xmlTreeParse(ans$body, asText = TRUE)
 
     ## It would be nice to use internal nodes and xmlPathApply for
     ## more efficiently extracting nodes ... 
 
     result <- OAI_PMH_get_result(nodes)
 
-    if(xmlName(result) == "error") {
-        msg <- sprintf("Received condition '%s'",
-                       xmlAttrs(result)["code"])
-        txt <- xmlValue(result)
-        if(length(txt) && nzchar(txt))
-            msg <- paste(msg, sprintf("with diagnostic:\n%s", txt))
-        stop(msg)
-    }
+    if(xmlName(result) == "error")
+        stop(OAI_PMH_error(xmlAttrs(result)["code"], xmlValue(result)))
 
     nodes
     
@@ -148,9 +133,8 @@ function(baseurl, request, transform = FALSE)
     
     nodes <- OAI_PMH_issue_request(baseurl, request)
     ## Errors would have been thrown.
-    result <- OAI_PMH_get_result(nodes)
     verb <- OAI_PMH_get_verb(nodes)
-    kids <- xmlChildren(result)
+    kids <- xmlChildren(OAI_PMH_get_result(nodes))
 
     ## Even without transforming, it seems better to gather request
     ## results in a list, and combine at the end.
@@ -189,4 +173,15 @@ function(baseurl, request, transform = FALSE)
     }
 
     result    
+}
+
+OAI_PMH_error <-
+function(code, info, call = NULL)
+{
+    msg <- sprintf("Received condition '%s'", code)
+    if(length(info) && nzchar(info))
+        msg <- paste(msg, sprintf("with diagnostic:\n%s", info))
+    err <- list(code = code, info = info, message = msg, call = call)
+    class(err) <- c("OAI_PMH_error", "error", "condition")
+    err
 }
