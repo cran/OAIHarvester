@@ -140,7 +140,8 @@ function(x)
     ##    stop(gettextf("Cannot transform node kind '%s'", nm))
     ## </DM>
     if(is.null(trafo <- oaih_transform_methods_db[[nm]]))
-       stop(gettextf("Cannot transform node kind '%s'", nm))
+        stop(gettextf("Cannot transform node kind '%s'", nm),
+             domain = NA)
     trafo(x)
 }
 
