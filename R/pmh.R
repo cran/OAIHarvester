@@ -37,7 +37,7 @@ function(baseurl, request)
     ## OAI-PMH says the Content-Type returned for OAI-PMH requests must
     ## be text/xml (even in the case of non-OK status codes?).  So let
     ## us look at the HTTP status codes directly.
-    if((s <- h["status"]) != "200") {
+    if((s <- h["Status-Code"]) != "200") {
         ## OAI-PMH says certain status codes may be useful for load
         ## balancing.
         ##   503 - Service unavailable, a Retry-After period is
@@ -62,7 +62,7 @@ function(baseurl, request)
             msg <-
                 sprintf("OAI-PMH request failed with HTTP status code %s",
                         s)
-            txt <- h["statusMessage"]
+            txt <- h["Reason-Phrase"]
             if(!is.na(txt))
                 msg <- paste(msg, sprintf("and message:\n%s", txt))
             stop(msg)
@@ -134,7 +134,8 @@ function(baseurl, request, transform = FALSE)
     nodes <- OAI_PMH_issue_request(baseurl, request)
     ## Errors would have been thrown.
     verb <- OAI_PMH_get_verb(nodes)
-    kids <- xmlChildren(OAI_PMH_get_result(nodes))
+    result <- OAI_PMH_get_result(nodes)
+    kids <- xmlChildren(result)
 
     ## Even without transforming, it seems better to gather request
     ## results in a list, and combine at the end.

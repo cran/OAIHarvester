@@ -1,6 +1,6 @@
 \documentclass[a4paper,fleqn]{article}
 \usepackage[round,longnamesfirst]{natbib}
-\usepackage{graphicx,keyval,thumbpdf,url}
+\usepackage{graphicx,keyval,url}
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
 \usepackage{Sweave}
