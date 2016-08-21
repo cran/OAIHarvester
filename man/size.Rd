@@ -39,5 +39,5 @@ oaih_size(baseurl, from = NULL, until = NULL, set = NULL)
   without harvesting.
 }
 \examples{
-oaih_size("http://oai.datacite.org/oai")
+oaih_size("http://www.jstatsoft.org/oai")
 }
