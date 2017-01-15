@@ -1,5 +1,5 @@
 Package: OAIHarvester
-Version: 0.2-1
+Version: 0.2-2
 Title: Harvest Metadata Using OAI-PMH v2.0
 Authors@R: person("Kurt", "Hornik", role = c("aut", "cre"),
                   email = "Kurt.Hornik@R-project.org")
@@ -8,10 +8,11 @@ Description:
   Harvesting (OAI-PMH) version 2.0.
 Imports: XML, curl, utils
 License: GPL-2
-Date: 2016-08-21
+Depends: R (>= 3.2.0)
+Date: 2017-01-15
 NeedsCompilation: no
-Packaged: 2016-08-21 16:46:45 UTC; hornik
+Packaged: 2017-01-15 11:25:31 UTC; hornik
 Author: Kurt Hornik [aut, cre]
 Maintainer: Kurt Hornik <Kurt.Hornik@R-project.org>
 Repository: CRAN
-Date/Publication: 2016-08-21 19:11:47
+Date/Publication: 2017-01-15 12:37:55

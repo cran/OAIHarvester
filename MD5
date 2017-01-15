@@ -1,9 +1,9 @@
-bfba0c62355a3b02bebd000a37df5dec *DESCRIPTION
+78e56e138f1b48fb203cbd6539df0d67 *DESCRIPTION
 31958f06f6b0f2f0ea0c1a76eb5fc20a *NAMESPACE
-061ab780d6ea162f119e340eed9c8885 *R/apply.R
+d6f1b4b825451ee6bf24f86adf27b7d1 *R/apply.R
 385c341deabe63a7b35c37faf26806d6 *R/get.R
 a3fbe05285b9867f83853ab224e7197c *R/harvest.R
-035e2320cd7dd4ec98d98e3f6beffcfd *R/pmh.R
+0e3ed9c516747340ec93ac25855dafc3 *R/pmh.R
 7e77729dcec08dd1d9910dfa4df9c673 *R/providers.R
 bee538bfd62ca1fbbf807fd73112f96b *R/size.R
 e0b8da7afd71ce4da0ab1dc839bc5c1c *R/transform.R
@@ -12,7 +12,7 @@ e3cb5b6e367bf0353546cf0eda005baa *R/verb.R
 6de90db337c55c455717169e4bf85bd4 *build/vignette.rds
 9f7102572f46e5011b9c170b506e78a6 *inst/doc/oaih.R
 87368d379117e518c3a7ab1cbc912891 *inst/doc/oaih.Rnw
-bc31e4580fd63a05893e4472e2069b83 *inst/doc/oaih.pdf
+da2a497c897bd0642b559f9c9be8dde0 *inst/doc/oaih.pdf
 8e06f94c0ce65bc576563261ca8d88e5 *man/harvest.Rd
 d1934269a27e27cd6ce88b6dfad80974 *man/providers.Rd
 ba4062d092856f91409a79ca4505bff0 *man/size.Rd

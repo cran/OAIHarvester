@@ -1,6 +1,6 @@
 ## OAI-PMH infrastructure.
 
-## See http://www.openarchives.org/OAI/openarchivesprotocol.html
+## See <http://www.openarchives.org/OAI/openarchivesprotocol.html>.
 
 OAI_PMH_issue_request <-
 function(baseurl, request)
@@ -134,6 +134,8 @@ function(baseurl, request, transform = FALSE)
     nodes <- OAI_PMH_issue_request(baseurl, request)
     ## Errors would have been thrown.
     verb <- OAI_PMH_get_verb(nodes)
+    if(is.null(verb))
+        verb <- sub("^verb=([^&]*)&.*", "\\1", request)
     result <- OAI_PMH_get_result(nodes)
     kids <- xmlChildren(result)
 
