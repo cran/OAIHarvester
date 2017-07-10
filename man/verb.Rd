@@ -63,7 +63,7 @@ spec <- unlist(sets[sets[, "setName"] == "Type = Thesis", "setSpec"])
 x <- oaih_list_records(baseurl, set = spec)
 ## Drop deleted records and extract the metadata.
 m <- x[, "metadata"]
-m <- oaih_transform(m[sapply(m, length) > 0L])
+m <- oaih_transform(m[lengths(m) > 0L])
 ## Find the most frequent keywords.
 sep <- "[[:space:]]*/[[:space:]]*"
 keywords <- unlist(strsplit(unlist(m[, "subject"]), sep))

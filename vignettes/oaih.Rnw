@@ -21,7 +21,7 @@
 
 \title{Metadata Harvesting with R and OAI-PMH}
 \author{Kurt Hornik}
-\date{2009-09-15}
+\date{2017-07-14}
 
 %% \VignetteIndexEntry{Metadata Harvesting with R and OAI-PMH}
 
@@ -129,13 +129,16 @@ with incomplete results and a resumption token, which the harvester can
 use to issue an additional request (and repeat until completion).
 
 The R package \pkg{OAIHarvester} provides functions for performing each
-of the six OAI-PMH requests.  List requests will automatically be
-re-issued until complete results are obtained.  The names of these verb
-functions start with `\verb|oaih|' and follow a ``combine words with
-underscores'' scheme (e.g., \verb|oaih_list_records|, corresponding to
-the OAI-PMH \verb|ListRecords| verb, for harvesting records).  The
-functions return the actual (aggregated) \emph{result} of the
-repository's response to the harvester's request.
+of the six OAI-PMH requests, using, respectively, packages \pkg{curl}
+\cite{oaih:Ooms:2017}) and \pkg{xml2}
+\cite{oaih:Wickham+Hester+Ooms:2017} for HTTP and XML processing.  List
+requests will automatically be re-issued until complete results are
+obtained.  The names of these verb functions start with `\verb|oaih|'
+and follow a ``combine words with underscores'' scheme (e.g.,
+\verb|oaih_list_records|, corresponding to the OAI-PMH
+\verb|ListRecords| verb, for harvesting records).  The functions return
+the actual (aggregated) \emph{result} of the repository's response to
+the harvester's request.
 
 In addition to these functions for performing OAI-PMH requests, function
 \verb|oaih_harvest| is a high-level harvester which allows specifying
@@ -197,7 +200,7 @@ baseurl <- "http://epub.wu.ac.at/cgi/oai2"
 
 % If we print raw XML, ensure sanity.
 <<echo=FALSE,results=hide>>=
-require("XML")
+require("xml2")
 options(warnPartialMatchArgs = FALSE)
 options(width = 80)
 @ 
@@ -213,7 +216,7 @@ repository provides no compression support, and
 \Sexpr{length(x$description)} % $
 further description entries of kind
 <<>>=
-sapply(x$description, xmlName)
+sapply(x$description, xml_name)
 @ %
 where entry 1 indicates that the repository complies with the OAI
 format for unique record identifiers:
@@ -250,7 +253,7 @@ Transforming the Dublin Core metadata is achieved by calling
 metadata (from deleted records):
 <<>>=
 m <- x[, "metadata"]
-m <- oaih_transform(m[sapply(m, length) > 0L])
+m <- oaih_transform(m[lengths(m) > 0L])
 dim(m)
 @ %
 giving observations on the 15 (simple) Dublin Core elements:
@@ -349,6 +352,13 @@ m[grep("^Feinerer", unlist(m[, "creator"])),
   c("title", "creator", "subject")]
 @ 
 (again re-iterating the above comment about controlled vocabularies).
+
+Note that OAI-PMH objects obtained by OAI-PMH requests and subsequent
+transformations are made up of both character vectors and XML nodes from
+package \pkg{xml2}, with the latter lists of external pointers.  Thus,
+some extra effort is necessary to save OAI-PMH objects to a file or to
+restore these from a file: see \verb|?oaih_save_RDS| for more
+information.
 
 {\small
   \bibliographystyle{abbrvnat}

@@ -1,6 +1,6 @@
 ## OAI-PMH infrastructure.
 
-## See <http://www.openarchives.org/OAI/openarchivesprotocol.html>.
+## See <http://www.openarchives.org/OAI/openarchivesprotocol.html>
 
 OAI_PMH_issue_request <-
 function(baseurl, request)
@@ -29,7 +29,7 @@ function(baseurl, request)
     ## headers from *all* requested pages ... giving some 3xx code.
     ## Hence, we handle the 3xx codes which indicate locations to
     ## redirect ourselves.  See e.g. "HTTP status codes 3xx" in
-    ##   http://en.wikipedia.org/wiki/URL_redirection
+    ##   <http://en.wikipedia.org/wiki/URL_redirection>
     ## </NOTE>
 
     ## Look at the header first to see if we succeeded.
@@ -71,9 +71,9 @@ function(baseurl, request)
 
     ## Proceed with body.
     
-    ## http://www.openarchives.org/OAI/2.0/openarchivesprotocol.htm says
-    ## that the XML responses to OAI-PMH requests have the following
-    ## common markup:
+    ## <http://www.openarchives.org/OAI/2.0/openarchivesprotocol.htm>
+    ## says that the XML responses to OAI-PMH requests have the
+    ## following common markup:
     ## * The first tag output is an XML declaration where the version is
     ##   always 1.0 and the encoding is always UTF-8.
     ## * The remaining content is enclosed in a root element with the
@@ -90,7 +90,7 @@ function(baseurl, request)
     ##      exception condition;
     ##   ** an element with the same name as the verb of the respective
     ##      OAI-PMH request.
-    ## See http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd.
+    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd>.
 
     ## We will refer to the third child as the "result" in the non-error
     ## case.
@@ -101,29 +101,25 @@ function(baseurl, request)
     ## tree.  Let specific request issuers handle the resumptionToken
     ## accumulation as necessary ...
 
-    nodes <- xmlTreeParse(ans$body, asText = TRUE)
-
-    ## It would be nice to use internal nodes and xmlPathApply for
-    ## more efficiently extracting nodes ... 
+    nodes <- read_xml(ans$body)
 
     result <- OAI_PMH_get_result(nodes)
 
-    if(xmlName(result) == "error")
-        stop(OAI_PMH_error(xmlAttrs(result)["code"], xmlValue(result)))
+    if(xml_name(result) == "error")
+        stop(OAI_PMH_error(xml_attr(result, "code"), xml_text(result)))
 
     nodes
-    
 }
 
 ## Get request verb from OAI-PMH request response
 OAI_PMH_get_verb <-
 function(nodes)
-    xmlAttrs(xmlRoot(nodes)[["request"]])["verb"]
+    xml_attr(xml_children(nodes)[[2L]], "verb")
 
 ## Get result from OAI-PMH request response.
 OAI_PMH_get_result <-
 function(nodes)    
-    xmlRoot(nodes)[[3L]]
+    xml_children(nodes)[[3L]]
 
 OAI_PMH_gather_request_results <-
 function(baseurl, request, transform = FALSE)
@@ -136,8 +132,7 @@ function(baseurl, request, transform = FALSE)
     verb <- OAI_PMH_get_verb(nodes)
     if(is.null(verb))
         verb <- sub("^verb=([^&]*)&.*", "\\1", request)
-    result <- OAI_PMH_get_result(nodes)
-    kids <- xmlChildren(result)
+    kids <- xml_children(OAI_PMH_get_result(nodes))
 
     ## Even without transforming, it seems better to gather request
     ## results in a list, and combine at the end.
@@ -146,13 +141,13 @@ function(baseurl, request, transform = FALSE)
         size <- length(kids)
         ## Assume that the resumption token comes last.
         last <- kids[[size]]
-        done <- if(xmlName(last) != "resumptionToken")
+        done <- if(xml_name(last) != "resumptionToken")
             TRUE
         else {
             ## Drop resumption token from results.
             kids <- kids[-size]
             ## Done iff the resumption token is "empty".
-            !length(token <- xmlValue(last))
+            !nzchar(token <- xml_text(last))
         }
         if(transform)
             kids <- oaih_transform(kids)
@@ -162,17 +157,14 @@ function(baseurl, request, transform = FALSE)
             OAI_PMH_issue_request(baseurl,
                                   sprintf("verb=%s&resumptionToken=%s",
                                           verb, token))
-        kids <- xmlChildren(OAI_PMH_get_result(nodes))
+        kids <- xml_children(OAI_PMH_get_result(nodes))
     }
 
     if(transform) {
         result <- do.call("rbind", chunks)
     } else {
-        chunks <- unlist(chunks, recursive = FALSE, use.names = FALSE)
-        ## Using
-        ##   xmlChildren(result) <- chunks
-        ## adds names and hence duplicates storage ...
-        result$children <- chunks
+        result <- unlist(chunks, recursive = FALSE, use.names = FALSE)
+        ## Could make this an xml_nodeset ...
     }
 
     result    

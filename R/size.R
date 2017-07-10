@@ -18,13 +18,12 @@ function(baseurl, from = NULL, until = NULL, set = NULL)
     }
     
     result <- OAI_PMH_get_result(nodes)
-    kids <- xmlChildren(result)
+    kids <- xml_children(result)
     size <- length(kids)
     last <- kids[[size]]
-    if(xmlName(last) == "resumptionToken") {
-        size <- xmlAttrs(last)["completeListSize"]
-        if(is.null(size)) size <- NA_real_
+    if(xml_name(last) == "resumptionToken") {
+        size <- as.numeric(xml_attr(last, "completeListSize"))
     }
 
-    as.numeric(size)
+    size
 }

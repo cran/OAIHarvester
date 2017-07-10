@@ -1,93 +1,109 @@
 ## Helper functions.
 
-.get_value_of_unique_text_nodes <-
-function(x, names = NULL)
+## <NOTE>
+## Unlike package 'XML', package 'xml2' does not provide subscripting
+## XML nodes by name (the XML names of the kids), as subnodes can always
+## be found via XPATH expressions.  As this also uses the namespace
+## information, one needs to use names explicitly qualified with the ns
+## prefix.  We could use xml_ns_strip() to strip the namespace info we
+## get, or needs to be explicit (using 'd1' as prefix for the default
+## "http://www.openarchives.org/OAI/2.0/" namespace) ... or use the
+## little helper below.
+## </NOTE>
+
+.xml_children_named <-
+function(x, name)
 {
-    names(x) <- NULL
-    if(is.null(names))
-        names <- unique(unlist(lapply(x, xmlApply, xmlName)))
-    out <- lapply(x,
-                  function(n) {
-                      lapply(n[names],
-                             .xml_value_if_not_null,
-                             NA_character_)
-                  })
-    matrix(unlist(out, recursive = FALSE),
-           nrow = length(x), ncol = length(names),
-           byrow = TRUE, dimnames = list(NULL, names))    
+    kids <- xml_children(x)
+    kids[xml_name(kids) == name]
 }
 
-.get_value_of_any_text_nodes <-
-function(x, names = NULL)
+.xml_child_named <-
+function(x, name, default = xml_missing())
 {
-    if(is.null(names))
-        names <- unique(unlist(lapply(x, xmlApply, xmlName)))
-    ## <NOTE>
-    ## We used to eventually apply
-    ##    as.character(sapply(.elements_named(e, nm), xmlValue)))
-    ## but apparently xmlValue() gives character() rather than an empty
-    ## string for "empty" nodes ... eventually resulting in
-    ##    "character(0)"
-    ## entries.  Argh.  Let's use .xml_value_if_not_empty() instead.
-    out <-
-        do.call(cbind,
-                lapply(names,
-                       function(nm) {
-                           lapply(x, 
-                                  function(e)
-                                  as.character(sapply(.elements_named(e,
-                                                                      nm),
-                                                      .xml_value_if_not_empty))
-                                  )
-                       }))
-    dimnames(out) <- list(NULL, names)
-    out
+    kids <- .xml_children_named(x, name)
+    if(length(kids)) kids[[1L]] else default
 }
-
-.elements_named <-
-function(x, name)
-    .structure(x[names(x) == name], names = NULL)
-
-## <FIXME>
-## Is the distinction between getting a single "any" node and all "any"
-## nodes still useful?
-## </FIXME>
-
-.get_one_any_node <-
-function(x, name)
-    x[[name]][[1L]]
 
 .get_all_any_nodes <-
 function(x, name)
-    lapply(.elements_named(x, name), `[[`, 1L)
+    lapply(.xml_children_named(x, name), xml_child, 1L)
+## So after
+##   require("OAIHarvester")
+##   baseurl <- "http://epub.wu.ac.at/cgi/oai2"
+##   x <- oaih_identify(baseurl, transform = FALSE)
+## the description elements can be obtained via
+##   xml_find_all(x, "./d1:description")
+## or
+##   .xml_children_named(x, "description")
+## and their "contents" via
+##   lapply(xml_find_all(x, "./d1:description"), xml_child, 1L)
+## or
+##   lapply(.xml_children_named(x, "description"), xml_child, 1L)
+## or
+##   .get_all_any_nodes(x, "description")
 
-## <NOTE>
-## Damn.
-## All of OAI-PMH is UTF-8.
-## We use getURL with .encoding = "UTF-8" and the XML we get starts with
-##   "<?xml version='1.0' encoding='UTF-8'?>"
-## but nevertheless xmlTreeParse() and subsequent xmlValue() only return
-## strings with encoding "unknown" (2010-09-15).
-## The encoding argument to xmlValue() seems unused ...
-## Hence, try adding the encoding back in ...
-
-.xml_value_if_not_null <-
-function(n, default)
-    if(!is.null(n)) .xml_value_in_utf8(n) else default
-
-.xml_value_if_not_empty <-
-function(n)
-    if(length(v <- .xml_value_in_utf8(n))) v else ""
-
-.xml_value_in_utf8 <-
-function(n)
+.get_one_any_node <-
+function(x, name)
 {
-    v <- xmlValue(n)
-    if(is.character(v))
-        Encoding(v) <- "UTF-8"
-    v
+    kids <- .xml_children_named(x, name)
+    if(length(kids)) {
+        kids <- xml_children(kids[[1L]])
+        if(length(kids))
+            kids[[1L]]
+        else
+            NULL
+    }
+    else
+        NULL
 }
-## </NOTE>
+## There may be no element named with the given 'name', or it may be
+## empty: in both cases we return NULL, otherwise the (first) child of
+## the first element.
+## Note that after e.g.
+##   require("OAIHarvester")
+##   baseurl <- "http://epub.wu.ac.at/cgi/oai2"
+##   x <- oaih_get_record(baseurl, "oai:epub.wu-wien.ac.at:4274",
+##                        transform = FALSE)
+## (which is a deleted record and hence has no metadata), when finding 
+## the first metadata element via
+##   xml_find_first(x, "./d1:metadata")
+## gives xml_missing(), which we could test for using is.na().
+    
+.get_value_of_any_text_nodes <-
+function(x, names = NULL)
+{        
+    all_kids <- lapply(x, xml_children)
+    all_names <- lapply(all_kids, xml_name)
+    if(is.null(names)) {
+        names <- unique(unlist(all_names))
+    } 
+    out <- Map(function(k, n) {
+                   split(xml_text(k), factor(n, names))[names]
+               },
+               all_kids,
+               all_names)
+    matrix(unlist(out, recursive = FALSE),
+           nrow = length(x), ncol = length(names),
+           byrow = TRUE, dimnames = list(NULL, names))
+}
+
+.get_value_of_unique_text_nodes <-
+function(x, names = NULL)
+{
+    all_kids <- lapply(x, xml_children)
+    all_names <- lapply(all_kids, xml_name)
+    if(is.null(names)) {
+        names <- unique(unlist(all_names))
+    }
+    out <- lapply(all_kids,
+                  function(kids) {
+                      as.list(xml_text(kids)[match(names, xml_name(kids))])
+                  })
+    matrix(unlist(out, recursive = FALSE),
+           nrow = length(x), ncol = length(names),
+           byrow = TRUE, dimnames = list(NULL, names))
+}    
 
 .OAI_PMH_UTC_date_stamp <-
 function(x, times_ok = TRUE)
@@ -114,6 +130,60 @@ function(x, times_ok = TRUE)
     x
 }
 
-.structure <-
-function(x, ...)
-    `attributes<-`(x, c(attributes(x), list(...)))
+html_tables <-
+function(doc, which = integer())
+{
+    if(!inherits(doc, "xml_document"))
+        doc <- read_html(doc)
+    nodes <- xml_find_all(doc, "//table")
+    if(length(which))
+        nodes <- nodes[which]
+    tables <- lapply(nodes, html_table_body)
+    names(tables) <-
+        vapply(nodes, html_table_name, "")
+    tables
+}
+
+html_table_body <-
+function(node)
+{
+    header <- NULL
+    drop_first_row <- FALSE
+    nodes <- xml_find_all(node, "./thead")
+    if(length(nodes))
+        header <- trimws(xml_text(xml_find_all(nodes[[1L]], ".//th")))
+    nodes <- xml_find_all(node, "./tbody")
+    if(length(nodes))
+        node <- nodes[[1L]]
+    if(is.null(header)) {
+        nodes <- xml_find_all(node, "./tr[1]/th")
+        if(length(nodes)) {
+            header <- trimws(xml_text(nodes))
+            drop_first_row <- TRUE
+        }
+    }
+    rows <- xml_find_all(node, ".//tr")
+    if(drop_first_row) rows <- rows[-1]
+    elts <- lapply(rows,
+                   function(row) {
+        trimws(xml_text(xml_find_all(row, "./th | ./td")))
+    })
+    if(!length(elts)) return(NULL)
+    ind <- seq_len(max(vapply(elts, length, 0L)))
+    tab <- do.call(rbind, lapply(elts, `[`, ind))
+    if(length(header) == ncol(tab))
+        colnames(tab) <- header
+    tab
+}
+
+html_table_name <-
+function(node)
+{
+    id <- xml_attr(node, "id")
+    if(!is.na(id))
+        return(id)
+    nodes <- xml_find_all(node, "./caption")
+    if(length(nodes))
+        return(xml_text(nodes[[1L]]))
+    ""
+}

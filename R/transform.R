@@ -37,66 +37,13 @@
 ## context (ListSomething() requests, or lists of same-kind XML nodes)
 ## gives a list matrix.
 ##
-## The specifics are somewhat tricky.
-## One possible guideline for transformation could be the following:
-## A list of character vectors can be left as is.
-## For a single non-leaf XML node transform the children.
-## For a list of different-kind XML nodes, split according to kind, and
-## return a list of the transformed sublists.
-## For a list of same-kind XML nodes, get their values if they are text
-## nodes, and otherwise leave alone.
-##
-## A possible implementation:
-##
-## oaih_transform <-
-## function(x, rbind = FALSE)
-## {
-##     xml_value_if_text_node <- function(n)
-##         if(length(v <- xmlValue(n, recursive = FALSE))) v else n
-
-##     if(inherits(x, "XMLNode")) {
-##         kids <- xmlChildren(x)
-##         if(!length(kids))
-##             return(xml_value_if_text_node(x))
-##         x <- kids
-##     } else {
-##         if(!is.list(x))
-##             stop("Cannot transform")
-##         else if(all(sapply(x, is.character)))
-##             return(x)
-##         else if(!all(sapply(x, inherits, "XMLNode")))
-##             stop("Cannot transform")
-##     }
-##     names(x) <- NULL
-##     nms <- sapply(x, xmlName)
-##     if(length(unique(nms)) > 1L)
-##         tapply(x, nms, sapply, xml_value_if_text_node)
-##     else
-##         sapply(x, xml_value_if_text_node)
-## }
-##
-## (in fact, the sapply() at the end is not quite correct).
-##
-## The downside of this "agnostic" approach to transformation is:
-## * Possible loss of convenience in cases where it is felt that a
-##   different representation is more appropriate.  E.g., for a record
-##   we have
-##     header metadata? about*
-##   where in turn header is
-##     identifier datestamp setSpec*
-##   (all character) and about can be "anything", and it seems useful to
-##   "flatten out" the all-character nodes.  (One might be able to turn
-##   this into a general principle, though.)
-## * Elements which may be missing (minOccurs = 0 in the DTD) will be
-##   missing, which at least makes it inconvenient to combine results.
-##
-## Hence, instead we use tailor-made explicit transformations for
-## certains kinds of nodes, with the underlying idea that transforming a
-## list of "same" nodes will result in a list matrix with rows
-## corresponding to transforming a single node.  We thus arrange for the
-## transformation methods to always work in a list context (i.e., to be
-## vectorized) and return list matrices, and the transformation function
-## to maintain the context.
+## The specifics are somewhat tricky.  We thus use tailor-made explicit
+## transformations for certains kinds of nodes, with the underlying idea
+## that transforming a list of "same" nodes will result in a list matrix
+## with rows corresponding to transforming a single node.  We thus
+## arrange for the transformation methods to always work in a list
+## context (i.e., to be vectorized) and return list matrices, and the
+## transformation function to maintain the context.
 
 oaih_transform <-
 function(x)
@@ -104,20 +51,19 @@ function(x)
     list_type_node_names <-
         c("ListIdentifiers", "ListMetadataFormats", "ListRecords",
           "ListSets")
-    ## Internal nodes would not inherit from XMLNode ...
-    xml_node_classes <- c("XMLNode", "XMLAbstractNode")
+    xml_node_classes <- c("xml_node")
     if(inherits(x, xml_node_classes)) {
-        if(xmlName(x) %in% list_type_node_names)
-            .oaih_vtransform(xmlChildren(x))
+        if(!is.na(match(xml_name(x), list_type_node_names)))
+            .oaih_vtransform(xml_children(x))
         else
             .oaih_vtransform(list(x))[1L, ]
     }
     else {
         if(!is.list(x))
             stop("Can only transform lists and XML nodes")
-        else if(all(sapply(x, is.character)))
+        else if(all(vapply(x, is.character, TRUE)))
             return(x)
-        else if(!all(sapply(x, inherits, xml_node_classes)))
+        else if(!all(vapply(x, inherits, TRUE, xml_node_classes)))
             stop("Can only transform lists of XML nodes or character vectors")
         .oaih_vtransform(x)
     }
@@ -128,17 +74,8 @@ function(x)
 .oaih_vtransform <-
 function(x)
 {
-    if(length(nm <- unique(sapply(x, xmlName))) > 1L)
+    if(length(nm <- unique(sapply(x, xml_name))) > 1L)
         stop("Cannot transform mixed-kind node lists")
-    names(x) <- NULL
-    ## <DM>
-    ## registry implemented instead of:
-    ## trafo <- sprintf(".oaih_vtransform_%s", nm)
-    ## if(exists(trafo, mode = "function"))
-    ##    trafo <- get(trafo, mode = "function")
-    ## else
-    ##    stop(gettextf("Cannot transform node kind '%s'", nm))
-    ## </DM>
     if(is.null(trafo <- oaih_transform_methods_db[[nm]]))
         stop(gettextf("Cannot transform node kind '%s'", nm),
              domain = NA)
@@ -151,7 +88,7 @@ oaih_transform_methods_db$Identify <-
 function(x)
 {
     ## A list of <Identify> nodes.
-    ## See http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd for the
+    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
     ## definition of identifyType: this
     ## * MUST include one instance of:
     ##     repositoryName baseURL protocolVersion earliestDatestamp
@@ -180,7 +117,7 @@ function(x)
 ## {
 ##     ## A list of <branding> nodes using a schema for collection branding
 ##     ## within OAI.
-##     ## See http://www.openarchives.org/OAI/2.0/branding.xsd for the
+##     ## See <http://www.openarchives.org/OAI/2.0/branding.xsd> for the
 ##     ## definition of branding nodes: a sequence with elements
 ##     ##   collectionIcon? metadataRendering*
 ##     ## which in turn are sequences with elements
@@ -196,7 +133,7 @@ function(x)
 {
     ## Dublin Core:
     ## A list of <oai:dc> nodes.
-    ## See http://www.openarchives.org/OAI/2.0/oai_dc.xsd for the
+    ## See <http://www.openarchives.org/OAI/2.0/oai_dc.xsd> for the
     ## definition of oai_dcType.
     ## Note that each of the 15 string-type variables can occur
     ## arbitrarly often in an oai_dc metadata node.
@@ -212,24 +149,44 @@ function(x)
 {
     ## A list of <eprint> nodes, for use in the description section of
     ## an Identify() reply, defined by the e-print community.
-    ## See http://www.openarchives.org/OAI/2.0/eprints.xsd for the
+    ## See <http://www.openarchives.org/OAI/2.0/eprints.xsd> for the
     ## definition of eprints:eprintsDescriptionType: a sequence with
     ## elements
     ##   content? metadataPolicy dataPolicy submissionPolicy comment*
     ## with the last a string and the others of TextURLType, consisting
     ## of an URL and text.
     ## Grr, so we must flatten this out ... ugly.
+
     eprint_textURL_vars <-
         c("content", "metadataPolicy", "dataPolicy", "submissionPolicy")
+
     out <- lapply(x,
-                  function(n)
-                  lapply(n[eprint_textURL_vars],
-                         function(x)
-                         c(.xml_value_if_not_null(x[["URL"]],
-                                                  NA_character_),
-                           .xml_value_if_not_null(x[["text"]],
-                                                  NA_character_)
-                           )))
+                  function(e) {
+                      kids <- xml_children(e)
+                      vals <- rep.int(list(rep.int(NA_character_, 2L)),
+                                      4L)
+                      pos <- match(eprint_textURL_vars,
+                                   xml_name(kids),
+                                   nomatch = 0L)
+                      vals[pos > 0L] <-
+                          lapply(kids[pos],
+                                 function(e) {
+                                     k <- xml_children(e)
+                                     xml_text(k[match(c("URL", "text"),
+                                                      xml_name(k),
+                                                      nomatch = 0)])[1L : 2L]
+                                 })
+                      vals
+                  })
+    ## out <- lapply(x,
+    ##               function(n)
+    ##               lapply(n[eprint_textURL_vars],
+    ##                      function(x)
+    ##                      c(.xml_value_if_not_null(x[["URL"]],
+    ##                                               NA_character_),
+    ##                        .xml_value_if_not_null(x[["text"]],
+    ##                                               NA_character_)
+    ##                        )))
     out <- matrix(as.list(do.call(rbind, lapply(out, unlist))),
                   nrow = length(x), ncol = 8L,
                   dimnames =
@@ -245,7 +202,7 @@ function(x)
     ## A list of <friend> nodes, for use in the description section of
     ## an Identify() reply for repositories that list "friends"
     ## (confederate data providers).
-    ## See http://www.openarchives.org/OAI/2.0/friends.xsd for the
+    ## See <http://www.openarchives.org/OAI/2.0/friends.xsd> for the
     ## definition of friends:friendsType: a sequence with elements
     ##   baseURL*
     ## (string-type).
@@ -256,7 +213,7 @@ oaih_transform_methods_db$header <-
 function(x)
 {
     ## A list of <header> nodes.
-    ## See http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd for the
+    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
     ## definition of headerType: a sequence with elements
     ##   identifier datestamp setSpec*
     ## and optionally a status attribute (all string-type).
@@ -268,15 +225,17 @@ function(x)
           setSpec =
           lapply(x,
                  function(kid)
-                 as.character(sapply(kid[names(kid) == "setSpec"],
-                                     .xml_value_in_utf8))))
+                     vapply(.xml_children_named(kid, "setSpec"),
+                            xml_text,
+                            ""))
+          )
 }
 
 oaih_transform_methods_db$metadataFormat <-
 function(x)
 {
     ## A list of <metadataFormat> nodes.
-    ## See http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd for the
+    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
     ## definition of metadataFormatType: a sequence with elements
     ##   metadataPrefix schema metadataNamespace
     ## (all string-type).
@@ -290,7 +249,7 @@ function(x)
 {
     ## A list of <oai-identifier> nodes, for use in the description
     ## section of an Identify() reply.
-    ## See http://www.openarchives.org/OAI/2.0/oai-identifier.xsd for
+    ## See <http://www.openarchives.org/OAI/2.0/oai-identifier.xsd> for
     ## the definition of oai-identifierType: a sequence with elements
     ##   scheme repositoryIdentifier delimiter sampleIdentifier
     ## (all string-type).
@@ -304,7 +263,7 @@ oaih_transform_methods_db$rfc1807 <-
 function(x)
 {
     ## A list of <rfc1807> metadata nodes.
-    ## See http://www.openarchives.org/OAI/rfc1807.xsd for the
+    ## See <http://www.openarchives.org/OAI/rfc1807.xsd> for the
     ## definition of fc1807:rfc1807Type: a sequence with the elements in
     ## rfc1807_vars below, where the first three occur exactly once and
     ## the others arbitrarily often (all text-type).
@@ -322,11 +281,11 @@ oaih_transform_methods_db$record <-
 function(x)
 {
     ## A list of <record> nodes.
-    ## See http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd for the
+    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
     ## definition of recordType: a sequence with elements
     ##   header metadata? about*
     ## where metadata and about can be "anything".
-    cbind(.oaih_vtransform(lapply(x, `[[`, "header")),
+    cbind(.oaih_vtransform(lapply(x, .xml_child_named, "header")),
           metadata = lapply(x, .get_one_any_node, "metadata"),
           about = lapply(x, .get_all_any_nodes, "about"))
 }
@@ -335,7 +294,7 @@ oaih_transform_methods_db$set <-
 function(x)
 {
     ## A list of <set> nodes.
-    ## See http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd for the
+    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
     ## definition of setType: a sequence with elements
     ##   setSpec setName setDescription*
     ## where setDescription can be "anything".
@@ -343,19 +302,3 @@ function(x)
           setDescription =
           lapply(x, .get_all_any_nodes, "setDescription"))
 }
-
-### register functions
-## transfuns <- registry()
-## transfuns$set_field("Key", type = "character", is_key = TRUE)
-## transfuns$set_field("FUN", type = "function")
-## transfuns$set_entry("Identify", .oaih_vtransform_Identify)
-## transfuns$set_entry("dc", .oaih_vtransform_dc)
-## transfuns$set_entry("eprints", .oaih_vtransform_eprints)
-## transfuns$set_entry("friends", .oaih_vtransform_friends)
-## transfuns$set_entry("header", .oaih_vtransform_header)
-## transfuns$set_entry("metadataFormat", .oaih_vtransform_metadataFormat)
-## transfuns$set_entry("oai-identifier", `.oaih_vtransform_oai-identifier`)
-## transfuns$set_entry("rfc1807", .oaih_vtransform_rfc1807)
-## transfuns$set_entry("record", .oaih_vtransform_record)
-## transfuns$set_entry("set", .oaih_vtransform_set)
-

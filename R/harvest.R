@@ -17,7 +17,7 @@ function(baseurl,
         if(inherits(sets, "error"))
             stop("Repository does not provide sets.")
         sets <- unlist(sets[, "setSpec"])
-        bad <- ! set %in% sets
+        bad <- is.na(match(set, sets))
         if(any(bad))
             stop(sprintf(ngettext(length(bad),
                                   "Set %s is unavaible.",
@@ -43,10 +43,10 @@ function(baseurl,
                                                        "metadataPrefix"])
         ## If 'prefix' is given, match against the available formats.
         if(!is.null(prefix)) {
-            bad <- ! prefix %in% formats
+            bad <- is.na(match(prefix, formats))
             if(any(bad))
                 stop(sprintf(ngettext(length(bad),
-                                      "Metadata prefix %s is unavaible.",
+                                      "Metadata prefix %s is unavailable.",
                                       "Metadata prefixes %s are unavailable."),
                              paste(sQuote(prefix[bad]), collapse = ", ")))
         } else {

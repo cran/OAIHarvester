@@ -1,6 +1,6 @@
 ## OAI-PMH request issuers.
 
-## See http://www.openarchives.org/OAI/openarchivesprotocol.html
+## See <http://www.openarchives.org/OAI/openarchivesprotocol.html>
 
 ## These can either return the result in XML form, or (by default) a
 ## suitable transformation thereof (see below).
@@ -12,9 +12,9 @@ function(baseurl, identifier, prefix = "oai_dc", transform = TRUE)
         sprintf("verb=GetRecord&identifier=%s&metadataPrefix=%s",
                 identifier, prefix)
     response <- OAI_PMH_issue_request(baseurl, request)
-    result <- OAI_PMH_get_result(response)[["record"]]
+    result <- .xml_child_named(OAI_PMH_get_result(response),
+                               "record")
     if(transform) oaih_transform(result) else result
-        
 }
 
 oaih_identify <-

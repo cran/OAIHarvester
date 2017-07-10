@@ -1,12 +1,15 @@
-importFrom("XML",
-           "readHTMLTable", "xmlApply", "xmlAttrs", "xmlChildren",
-           "xmlName", "xmlRoot", "xmlTreeParse", "xmlValue")
-
 importFrom("curl",
            "curl_fetch_memory", "new_handle", "parse_headers")
-
-importFrom("utils",
-           "URLencode")
+importFrom("utils", "URLencode")
+importFrom("xml2",
+           "as_xml_document",
+           "read_html", "read_xml",
+           "xml_attr",
+           "xml_child", "xml_children",
+           "xml_find_all", "xml_find_first",
+           "xml_missing",
+           "xml_name",
+           "xml_text") 
 
 export("oaih_get_record",
        "oaih_identify",
@@ -18,3 +21,14 @@ export("oaih_get_record",
        "oaih_harvest",
        "oaih_providers",
        "oaih_size")
+
+export("oaih_read_RDS",
+       "oaih_save_RDS",
+       "oaih_str_to_xml",
+       "oaih_xml_to_str")
+S3method("oaih_str_to_xml", "oaih_str_from_xml_node")
+S3method("oaih_str_to_xml", "oaih_str_from_xml_nodeset")
+S3method("oaih_str_to_xml", "default")
+S3method("oaih_xml_to_str", "xml_node")
+S3method("oaih_xml_to_str", "xml_nodeset")
+S3method("oaih_xml_to_str", "default")

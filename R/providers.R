@@ -4,8 +4,8 @@ local({
     function() {
         if(is.null(.providers)) {
             providers <-
-                readHTMLTable("http://www.openarchives.org/Register/BrowseSites")
-            providers <- providers[[2L]][3L : 5L]
+                html_tables("http://www.openarchives.org/Register/BrowseSites")
+            providers <- providers[[1L]][, 3L : 5L]
             names(providers) <- c("name", "baseurl", "identifier")
             .providers <<- providers
         }
