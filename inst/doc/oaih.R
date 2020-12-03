@@ -1,5 +1,4 @@
 ### R code from vignette source 'oaih.Rnw'
-### Encoding: UTF-8
 
 ###################################################
 ### code chunk number 1: oaih.Rnw:196-198

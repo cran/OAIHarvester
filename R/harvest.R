@@ -20,9 +20,10 @@ function(baseurl,
         bad <- is.na(match(set, sets))
         if(any(bad))
             stop(sprintf(ngettext(length(bad),
-                                  "Set %s is unavaible.",
+                                  "Set %s is unavailable.",
                                   "Sets %s are unavailable."),
-                         paste(sQuote(set[bad]), collapse = ", ")))
+                         paste(sQuote(set[bad]), collapse = ", ")),
+                 domain = NA)
         as.list(set)
     } else {
         list(NULL)
@@ -48,7 +49,9 @@ function(baseurl,
                 stop(sprintf(ngettext(length(bad),
                                       "Metadata prefix %s is unavailable.",
                                       "Metadata prefixes %s are unavailable."),
-                             paste(sQuote(prefix[bad]), collapse = ", ")))
+                             paste(sQuote(prefix[bad]),
+                                   collapse = ", ")),
+                     domain = NA)
         } else {
             prefix <- formats
         }

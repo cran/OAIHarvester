@@ -12,7 +12,7 @@ oaih_providers()
   Information is extracted from
   \url{http://www.openarchives.org/Register/BrowseSites}
   (as the XML formatted list of base URLs of registered data providers
-  from \url{http://www.openarchives.org/Register/ListFriends} does not
+  from \url{http://www.openarchives.org/pmh/registry/ListFriends} does not
   provide repository names), and cached for the current R session.
 }
 \value{

@@ -1,0 +1,51 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: OAIHarvester 0.3-0\n"
+"POT-Creation-Date: 2017-08-12 22:48\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+msgid "Repository does not provide sets."
+msgstr ""
+
+msgid "Performing request '%s'"
+msgstr ""
+
+msgid "Need to retry after %s seconds"
+msgstr ""
+
+msgid "Need to redirect to %s"
+msgstr ""
+
+msgid "code"
+msgstr ""
+
+msgid "Can only transform lists and XML nodes"
+msgstr ""
+
+msgid "Can only transform lists of XML nodes or character vectors"
+msgstr ""
+
+msgid "Cannot transform mixed-kind node lists"
+msgstr ""
+
+msgid "Cannot transform node kind '%s'"
+msgstr ""
+
+msgid "Repository only supports dates."
+msgstr ""
+
+msgid        "Set %s is unavailable."
+msgid_plural "Sets %s are unavailable."
+msgstr[0]    ""
+msgstr[1]    ""
+
+msgid        "Metadata prefix %s is unavailable."
+msgid_plural "Metadata prefixes %s are unavailable."
+msgstr[0]    ""
+msgstr[1]    ""
