@@ -24,6 +24,9 @@ oaih_transform(x)
   \dQuote{list context}.
 }
 \examples{
+tryCatch({
+## Run inside tryCatch() so that checks fail gracefully if OAI-PMH
+## requests time out or fail otherwise.
 baseurl <- "http://epub.wu.ac.at/cgi/oai2"
 ## Get a single record to save bandwidth.
 x <- oaih_get_record(baseurl,
@@ -38,4 +41,6 @@ x
 ## This has its metadata in the default Dublin Core form, encoded in
 ## XML.  Transform these to character data:
 oaih_transform(x$metadata)
+##
+}, error = identity)
 }

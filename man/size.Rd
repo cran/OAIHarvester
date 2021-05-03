@@ -39,5 +39,10 @@ oaih_size(baseurl, from = NULL, until = NULL, set = NULL)
   without harvesting.
 }
 \examples{
+tryCatch({
+## Run inside tryCatch() so that checks fail gracefully if OAI-PMH
+## requests time out or fail otherwise.
 oaih_size("http://www.jstatsoft.org/oai")
+## 
+}, error = identity)
 }

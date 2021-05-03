@@ -49,6 +49,10 @@ oaih_list_sets(baseurl, transform = TRUE)
   XML or (default) transformed to \dQuote{useful} R data structures.
 }
 \examples{
+tryCatch({
+## Run inside tryCatch() so that checks fail gracefully if OAI-PMH
+## requests time out or fail otherwise.
+##
 ## Harvest ePubWU metadata.
 baseurl <- "http://epub.wu.ac.at/cgi/oai2"
 ## Identify.
@@ -68,4 +72,6 @@ m <- oaih_transform(m[lengths(m) > 0L])
 sep <- "[[:space:]]*/[[:space:]]*"
 keywords <- unlist(strsplit(unlist(m[, "subject"]), sep))
 head(sort(table(keywords), decreasing = TRUE))
+##
+}, error = identity)
 }

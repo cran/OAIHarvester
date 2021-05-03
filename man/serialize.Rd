@@ -38,6 +38,9 @@ oaih_xml_to_str(x)
   a file.
 }
 \examples{
+tryCatch({
+## Run inside tryCatch() so that checks fail gracefully if OAI-PMH
+## requests time out or fail otherwise.
 baseurl <- "http://epub.wu.ac.at/cgi/oai2"
 x <- oaih_identify(baseurl)
 ## Now 'x' is a list of character vectors and XML nodes:
@@ -52,4 +55,6 @@ all.equal(x, y)
 saveRDS(oaih_xml_to_str(x), f)
 z <- oaih_str_to_xml(readRDS(f))
 all.equal(y, z)
+##
+}, error = identity)
 }
