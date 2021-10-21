@@ -88,7 +88,7 @@ oaih_transform_methods_db$Identify <-
 function(x)
 {
     ## A list of <Identify> nodes.
-    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
+    ## See <https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
     ## definition of identifyType: this
     ## * MUST include one instance of:
     ##     repositoryName baseURL protocolVersion earliestDatestamp
@@ -117,7 +117,7 @@ function(x)
 ## {
 ##     ## A list of <branding> nodes using a schema for collection branding
 ##     ## within OAI.
-##     ## See <http://www.openarchives.org/OAI/2.0/branding.xsd> for the
+##     ## See <https://www.openarchives.org/OAI/2.0/branding.xsd> for the
 ##     ## definition of branding nodes: a sequence with elements
 ##     ##   collectionIcon? metadataRendering*
 ##     ## which in turn are sequences with elements
@@ -133,7 +133,7 @@ function(x)
 {
     ## Dublin Core:
     ## A list of <oai:dc> nodes.
-    ## See <http://www.openarchives.org/OAI/2.0/oai_dc.xsd> for the
+    ## See <https://www.openarchives.org/OAI/2.0/oai_dc.xsd> for the
     ## definition of oai_dcType.
     ## Note that each of the 15 string-type variables can occur
     ## arbitrarly often in an oai_dc metadata node.
@@ -149,7 +149,7 @@ function(x)
 {
     ## A list of <eprint> nodes, for use in the description section of
     ## an Identify() reply, defined by the e-print community.
-    ## See <http://www.openarchives.org/OAI/2.0/eprints.xsd> for the
+    ## See <https://www.openarchives.org/OAI/2.0/eprints.xsd> for the
     ## definition of eprints:eprintsDescriptionType: a sequence with
     ## elements
     ##   content? metadataPolicy dataPolicy submissionPolicy comment*
@@ -202,7 +202,7 @@ function(x)
     ## A list of <friend> nodes, for use in the description section of
     ## an Identify() reply for repositories that list "friends"
     ## (confederate data providers).
-    ## See <http://www.openarchives.org/OAI/2.0/friends.xsd> for the
+    ## See <https://www.openarchives.org/OAI/2.0/friends.xsd> for the
     ## definition of friends:friendsType: a sequence with elements
     ##   baseURL*
     ## (string-type).
@@ -213,7 +213,7 @@ oaih_transform_methods_db$header <-
 function(x)
 {
     ## A list of <header> nodes.
-    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
+    ## See <https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
     ## definition of headerType: a sequence with elements
     ##   identifier datestamp setSpec*
     ## and optionally a status attribute (all string-type).
@@ -235,7 +235,7 @@ oaih_transform_methods_db$metadataFormat <-
 function(x)
 {
     ## A list of <metadataFormat> nodes.
-    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
+    ## See <https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
     ## definition of metadataFormatType: a sequence with elements
     ##   metadataPrefix schema metadataNamespace
     ## (all string-type).
@@ -249,7 +249,7 @@ function(x)
 {
     ## A list of <oai-identifier> nodes, for use in the description
     ## section of an Identify() reply.
-    ## See <http://www.openarchives.org/OAI/2.0/oai-identifier.xsd> for
+    ## See <https://www.openarchives.org/OAI/2.0/oai-identifier.xsd> for
     ## the definition of oai-identifierType: a sequence with elements
     ##   scheme repositoryIdentifier delimiter sampleIdentifier
     ## (all string-type).
@@ -263,7 +263,7 @@ oaih_transform_methods_db$rfc1807 <-
 function(x)
 {
     ## A list of <rfc1807> metadata nodes.
-    ## See <http://www.openarchives.org/OAI/rfc1807.xsd> for the
+    ## See <https://www.openarchives.org/OAI/rfc1807.xsd> for the
     ## definition of fc1807:rfc1807Type: a sequence with the elements in
     ## rfc1807_vars below, where the first three occur exactly once and
     ## the others arbitrarily often (all text-type).
@@ -281,7 +281,7 @@ oaih_transform_methods_db$record <-
 function(x)
 {
     ## A list of <record> nodes.
-    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
+    ## See <https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
     ## definition of recordType: a sequence with elements
     ##   header metadata? about*
     ## where metadata and about can be "anything".
@@ -294,7 +294,7 @@ oaih_transform_methods_db$set <-
 function(x)
 {
     ## A list of <set> nodes.
-    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
+    ## See <https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd> for the
     ## definition of setType: a sequence with elements
     ##   setSpec setName setDescription*
     ## where setDescription can be "anything".

@@ -7,7 +7,7 @@
 ## information, one needs to use names explicitly qualified with the ns
 ## prefix.  We could use xml_ns_strip() to strip the namespace info we
 ## get, or needs to be explicit (using 'd1' as prefix for the default
-## "http://www.openarchives.org/OAI/2.0/" namespace) ... or use the
+## "https://www.openarchives.org/OAI/2.0/" namespace) ... or use the
 ## little helper below.
 ## </NOTE>
 
@@ -30,7 +30,7 @@ function(x, name)
     lapply(.xml_children_named(x, name), xml_child, 1L)
 ## So after
 ##   require("OAIHarvester")
-##   baseurl <- "http://epub.wu.ac.at/cgi/oai2"
+##   baseurl <- "https://epub.wu.ac.at/cgi/oai2"
 ##   x <- oaih_identify(baseurl, transform = FALSE)
 ## the description elements can be obtained via
 ##   xml_find_all(x, "./d1:description")
@@ -62,7 +62,7 @@ function(x, name)
 ## the first element.
 ## Note that after e.g.
 ##   require("OAIHarvester")
-##   baseurl <- "http://epub.wu.ac.at/cgi/oai2"
+##   baseurl <- "https://epub.wu.ac.at/cgi/oai2"
 ##   x <- oaih_get_record(baseurl, "oai:epub.wu-wien.ac.at:4274",
 ##                        transform = FALSE)
 ## (which is a deleted record and hence has no metadata), when finding 

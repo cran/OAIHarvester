@@ -54,7 +54,7 @@ tryCatch({
 ## requests time out or fail otherwise.
 ##
 ## Harvest ePubWU metadata.
-baseurl <- "http://epub.wu.ac.at/cgi/oai2"
+baseurl <- "https://epub.wu.ac.at/cgi/oai2"
 ## Identify.
 oaih_identify(baseurl)
 ## List metadata formats.

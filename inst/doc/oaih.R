@@ -4,7 +4,7 @@
 ### code chunk number 1: oaih.Rnw:196-199
 ###################################################
 library("OAIHarvester")
-baseurl <- "http://epub.wu.ac.at/cgi/oai2"
+baseurl <- "https://epub.wu.ac.at/cgi/oai2"
 if(inherits(tryCatch(oaih_identify(baseurl), error = identity), "error")) q()
 
 

@@ -1,6 +1,6 @@
 ## OAI-PMH infrastructure.
 
-## See <http://www.openarchives.org/OAI/openarchivesprotocol.html>
+## See <https://www.openarchives.org/OAI/openarchivesprotocol.html>
 
 OAI_PMH_issue_request <-
 function(baseurl, request)
@@ -21,7 +21,7 @@ function(baseurl, request)
     
     ## <NOTE>
     ## E.g,
-    ##   http://CRAN.R-project.org/oai
+    ##   https://CRAN.R-project.org/oai
     ## redirects to
     ##   http://cran.R-project.org:8080/repo/CRANpackages
     ## One can handle such redirections using followlocation = TRUE:
@@ -29,7 +29,7 @@ function(baseurl, request)
     ## headers from *all* requested pages ... giving some 3xx code.
     ## Hence, we handle the 3xx codes which indicate locations to
     ## redirect ourselves.  See e.g. "HTTP status codes 3xx" in
-    ##   <http://en.wikipedia.org/wiki/URL_redirection>
+    ##   <https://en.wikipedia.org/wiki/URL_redirection>
     ## </NOTE>
 
     ## Look at the header first to see if we succeeded.
@@ -71,7 +71,7 @@ function(baseurl, request)
 
     ## Proceed with body.
     
-    ## <http://www.openarchives.org/OAI/2.0/openarchivesprotocol.htm>
+    ## <https://www.openarchives.org/OAI/2.0/openarchivesprotocol.htm>
     ## says that the XML responses to OAI-PMH requests have the
     ## following common markup:
     ## * The first tag output is an XML declaration where the version is
@@ -90,7 +90,7 @@ function(baseurl, request)
     ##      exception condition;
     ##   ** an element with the same name as the verb of the respective
     ##      OAI-PMH request.
-    ## See <http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd>.
+    ## See <https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd>.
 
     ## We will refer to the third child as the "result" in the non-error
     ## case.

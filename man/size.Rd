@@ -29,7 +29,7 @@ oaih_size(baseurl, from = NULL, until = NULL, set = NULL)
   only possible if the repository's flow control mechanism provides
   \code{resumptionToken} elements with \code{completeListSize}
   attributes (see
-  \url{http://www.openarchives.org/OAI/openarchivesprotocol.html}), or
+  \url{https://www.openarchives.org/OAI/openarchivesprotocol.html}), or
   flow control is not applied when listing identifiers in the selected
   range.
 }
@@ -42,7 +42,7 @@ oaih_size(baseurl, from = NULL, until = NULL, set = NULL)
 tryCatch({
 ## Run inside tryCatch() so that checks fail gracefully if OAI-PMH
 ## requests time out or fail otherwise.
-oaih_size("http://www.jstatsoft.org/oai")
+oaih_size("https://www.jstatsoft.org/oai")
 ## 
 }, error = identity)
 }

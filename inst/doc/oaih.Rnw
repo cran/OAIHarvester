@@ -28,19 +28,19 @@
 \begin{document}
 \maketitle{}
 
-The Open Archives Initiative (\url{http://www.openarchives.org/})
+The Open Archives Initiative (\url{https://www.openarchives.org/})
 develops and promotes interoperability standards that aim to facilitate
 the efficient dissemination of content.  One key project is the Open
 Archives Initiative Protocol for Metadata Harvesting (OAI-PMH,
-\url{http://www.openarchives.org/pmh/}) which provides ``a low-barrier
+\url{https://www.openarchives.org/pmh/}) which provides ``a low-barrier
 mechanism for repository interoperability'' for archives (institutional
 repositories) containing digital content (digital libraries).  OAI-PMH
 allows people (service providers, such as the ones registered with the
 OAI listed on
-\url{http://www.openarchives.org/service/listproviders.html}) to harvest
+\url{https://www.openarchives.org/service/listproviders.html}) to harvest
 metadata (from data providers, such as the ones registered with and
 validated by the OAI listed on
-\url{http://www.openarchives.org/Register/BrowseSites/}).  Data Providers
+\url{https://www.openarchives.org/Register/BrowseSites/}).  Data Providers
 administer systems that support the OAI-PMH as a means of exposing
 metadata.  Service Providers use metadata harvested via the OAI-PMH as a
 basis for building value-added services.
@@ -48,14 +48,14 @@ basis for building value-added services.
 OAI-PMH, currently in version 2.0, defines a mechanism for data
 providers to expose their metadata.  The protocol mandates that
 individual archives map their metadata to the Dublin Core (DC,
-\url{http://dublincore.org/}), a simple and common metadata set for
+\url{https://dublincore.org/}), a simple and common metadata set for
 cross-domain information resource description.  OAI-PMH is a set of six
 \emph{verbs} or services that are invoked within HTTP, returning the
 request results in XML format.  The OAI-PMH specification can be found
-at \url{http://www.openarchives.org/OAI/openarchivesprotocol.html}.
+at \url{https://www.openarchives.org/OAI/openarchivesprotocol.html}.
 Here, we summarize the basic facts and terminology.
 
-% http://en.wikipedia.org/wiki/Open_Archives_Initiative_Protocol_for_Metadata_Harvesting
+% https://en.wikipedia.org/wiki/Open_Archives_Initiative_Protocol_for_Metadata_Harvesting
 
 A harvester is a client application that issues OAI-PMH requests.  A
 harvester is operated by a service provider as a means of collecting
@@ -180,7 +180,7 @@ Thus, we do not immediately transform the metadata, but instead leave
 them as lists of XML nodes to be transformed in a second stage (with
 variables differing according to the metadata format; currently,
 metadata in the Dublin Core and RFC 1807
-(\url{http://www.rfc-editor.org/rfc/rfc1807.txt}) formats can be
+(\url{https://www.rfc-editor.org/rfc/rfc1807}) formats can be
 transformed).
 
 These principles (using lists of single observations on variables and
@@ -191,11 +191,11 @@ XML results.  Transformations can be added by assigning functions in the
 
 As an example consider \ePub{}, an electronic publication platform for
 research output provided by WU (Wirtschaftsuniversit\"at Wien), which
-provides an OAI repository at \url{http://epub.wu.ac.at/cgi/oai2}.
+provides an OAI repository at \url{https://epub.wu.ac.at/cgi/oai2}.
 
 <<>>=
 library("OAIHarvester")
-baseurl <- "http://epub.wu.ac.at/cgi/oai2"
+baseurl <- "https://epub.wu.ac.at/cgi/oai2"
 if(inherits(tryCatch(oaih_identify(baseurl), error = identity), "error")) q()
 @ 
 
@@ -296,9 +296,9 @@ colnames(m)
 %% (We can recognize `\verb|ger|' as ``german'', but realize it is not the
 %% 3-letter ISO 639-3 code we might have expected.  In fact, the Dublin
 %% Core specification for `language'
-%% (\url{http://dublincore.org/documents/dcmi-terms/#terms-language}) says
+%% (\url{https://dublincore.org/documents/dcmi-terms/#terms-language}) says
 %% ``Recommended best practice is to use a controlled vocabulary such as
-%% RFC 4646'', which (see \url{http://www.rfc-editor.org/rfc/rfc4646.txt})
+%% RFC 4646'', which (see \url{https://www.rfc-editor.org/rfc/rfc4646})
 %% uses ISO 639-1 and ISO 639-2 for two and three letter language tags,
 %% respectively.  See e.g.\ package \pkg{ISOcodes}
 %% \citep{oaih:Buchta+Hornik:2009} for ISO language code details and data.)
@@ -307,7 +307,7 @@ Finally, the topics of the theses are available in the `subject' DC
 variable, with comment ``Typically, the subject will be represented
 using keywords, key phrases, or classification codes. Recommended best
 practice is to use a controlled vocabulary.'' (see
-\url{http://dublincore.org/documents/dcmi-terms/#terms-subject}), but
+\url{https://dublincore.org/documents/dcmi-terms/#terms-subject}), but
 without a more detailed syntactic or semantic specification.
 
 Inspecting the output of \verb|m[, "subject"]|, e.g.,

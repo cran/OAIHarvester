@@ -1,6 +1,6 @@
 ## OAI-PMH request issuers.
 
-## See <http://www.openarchives.org/OAI/openarchivesprotocol.html>
+## See <https://www.openarchives.org/OAI/openarchivesprotocol.html>
 
 ## These can either return the result in XML form, or (by default) a
 ## suitable transformation thereof (see below).
