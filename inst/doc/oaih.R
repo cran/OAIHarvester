@@ -1,42 +1,42 @@
 ### R code from vignette source 'oaih.Rnw'
 
 ###################################################
-### code chunk number 1: oaih.Rnw:196-199
+### code chunk number 1: oaih.Rnw:197-199
 ###################################################
 library("OAIHarvester")
-baseurl <- "https://epub.wu.ac.at/cgi/oai2"
+baseurl <- "https://research.wu.ac.at/ws/oai"
+
+
+###################################################
+### code chunk number 2: oaih.Rnw:203-207
+###################################################
 if(inherits(tryCatch(oaih_identify(baseurl), error = identity), "error")) q()
-
-
-###################################################
-### code chunk number 2: oaih.Rnw:203-206
-###################################################
 require("xml2")
 options(warnPartialMatchArgs = FALSE)
 options(width = 80)
 
 
 ###################################################
-### code chunk number 3: oaih.Rnw:211-213
+### code chunk number 3: oaih.Rnw:212-214
 ###################################################
 x <- oaih_identify(baseurl)
 rbind(x, deparse.level = 0)
 
 
 ###################################################
-### code chunk number 4: oaih.Rnw:219-220
+### code chunk number 4: oaih.Rnw:220-221
 ###################################################
-sapply(x$description, xml_name)
+vapply(x$description, xml_name, "")
 
 
 ###################################################
-### code chunk number 5: oaih.Rnw:224-225
+### code chunk number 5: oaih.Rnw:225-226
 ###################################################
-oaih_transform(x$description[[1L]])
+oaih_transform(x$description[[2L]])
 
 
 ###################################################
-### code chunk number 6: oaih.Rnw:230-233
+### code chunk number 6: oaih.Rnw:231-234
 ###################################################
 oaih_list_metadata_formats(baseurl)
 sets <- oaih_list_sets(baseurl)
@@ -46,24 +46,18 @@ rbind(head(sets, 3L), tail(sets, 3L))
 ###################################################
 ### code chunk number 7: oaih.Rnw:239-240
 ###################################################
-spec <- unlist(sets[sets[, "setName"] == "Type = Thesis", "setSpec"])
+x <- oaih_list_records(baseurl, set = "publications:year2005")
 
 
 ###################################################
-### code chunk number 8: oaih.Rnw:243-244
-###################################################
-x <- oaih_list_records(baseurl, set = spec)
-
-
-###################################################
-### code chunk number 9: oaih.Rnw:248-250
+### code chunk number 8: oaih.Rnw:244-246
 ###################################################
 dim(x)
 colnames(x)
 
 
 ###################################################
-### code chunk number 10: oaih.Rnw:255-258
+### code chunk number 9: oaih.Rnw:251-254
 ###################################################
 m <- x[, "metadata"]
 m <- oaih_transform(m[lengths(m) > 0L])
@@ -71,58 +65,66 @@ dim(m)
 
 
 ###################################################
-### code chunk number 11: oaih.Rnw:261-262
+### code chunk number 10: oaih.Rnw:257-258
 ###################################################
 colnames(m)
 
 
 ###################################################
-### code chunk number 12: oaih.Rnw:314-315
+### code chunk number 11: oaih.Rnw:269-270
 ###################################################
-m[c(1L, 6L, 7L), "subject"]
+m[head(which(lengths(m[, "subject"]) > 0), 3L), "subject"]
 
 
 ###################################################
-### code chunk number 13: oaih.Rnw:319-324
+### code chunk number 12: oaih.Rnw:275-277
 ###################################################
-sep <- "[[:space:]]*/[[:space:]]*"
-keywords_by_thesis <-
-    strsplit(unlist(lapply(m[, "subject"],  paste, collapse = " / ")),
-             sep)
-keywords <- unlist(keywords_by_thesis)
+keywords <- unlist(m[, "subject"])
+keywords <- keywords[!startsWith(keywords, "/dk/atira/pure")]
 
 
 ###################################################
-### code chunk number 14: oaih.Rnw:328-330
+### code chunk number 13: oaih.Rnw:281-283
 ###################################################
 counts <- table(keywords)
 table(counts)
 
 
 ###################################################
-### code chunk number 15: oaih.Rnw:334-335
+### code chunk number 14: oaih.Rnw:287-288
 ###################################################
-sort(counts[counts >= 3L], decreasing = TRUE)
+sort(counts[counts >= 10L], decreasing = TRUE)
 
 
 ###################################################
-### code chunk number 16: oaih.Rnw:339-340
+### code chunk number 15: oaih.Rnw:294-297
 ###################################################
-counts["R"]
+pos <- which(vapply(m[, "creator"],
+                    function(e) any(startsWith(e, "Hornik")),
+                    NA))
 
 
 ###################################################
-### code chunk number 17: oaih.Rnw:343-346
+### code chunk number 16: oaih.Rnw:301-302
 ###################################################
-lapply(m[sapply(keywords_by_thesis, function(kw) any(kw == "R")),
-         c("title", "creator")],
-       strwrap)
+unlist(m[pos, "title"])
 
 
 ###################################################
-### code chunk number 18: oaih.Rnw:351-353
+### code chunk number 17: oaih.Rnw:305-306
 ###################################################
-m[grep("^Feinerer", unlist(m[, "creator"])),
-  c("title", "creator", "subject")]
+table(unlist(m[pos, "type"]))
+
+
+###################################################
+### code chunk number 18: oaih.Rnw:309-310
+###################################################
+pos <- pos[lengths(m[pos, "subject"]) > 0L]
+
+
+###################################################
+### code chunk number 19: oaih.Rnw:313-314
+###################################################
+unique(m[pos, "subject"])
 
 

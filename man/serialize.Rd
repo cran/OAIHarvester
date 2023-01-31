@@ -41,7 +41,7 @@ oaih_xml_to_str(x)
 tryCatch({
 ## Run inside tryCatch() so that checks fail gracefully if OAI-PMH
 ## requests time out or fail otherwise.
-baseurl <- "https://epub.wu.ac.at/cgi/oai2"
+baseurl <- "https://research.wu.ac.at/ws/oai"
 x <- oaih_identify(baseurl)
 ## Now 'x' is a list of character vectors and XML nodes:
 x

@@ -161,7 +161,7 @@ function(baseurl, request, transform = FALSE)
     }
 
     if(transform) {
-        result <- do.call("rbind", chunks)
+        result <- do.call(rbind, chunks)
     } else {
         result <- unlist(chunks, recursive = FALSE, use.names = FALSE)
         ## Could make this an xml_nodeset ...

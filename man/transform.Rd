@@ -27,10 +27,10 @@ oaih_transform(x)
 tryCatch({
 ## Run inside tryCatch() so that checks fail gracefully if OAI-PMH
 ## requests time out or fail otherwise.
-baseurl <- "https://epub.wu.ac.at/cgi/oai2"
+baseurl <- "https://research.wu.ac.at/ws/oai"
 ## Get a single record to save bandwidth.
 x <- oaih_get_record(baseurl,
-                     "oai:epub.wu-wien.ac.at:852",
+                     "oai:research.wu.ac.at:publications/783bfc47-bf51-454d-8b78-33fd63243e48",
                      transform = FALSE)
 ## The result of the request is a single OAI-PMH XML <record> node:
 x

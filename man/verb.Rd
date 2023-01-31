@@ -53,24 +53,24 @@ tryCatch({
 ## Run inside tryCatch() so that checks fail gracefully if OAI-PMH
 ## requests time out or fail otherwise.
 ##
-## Harvest ePubWU metadata.
-baseurl <- "https://epub.wu.ac.at/cgi/oai2"
+## Harvest WU Reearch metadata.
+baseurl <- "https://research.wu.ac.at/ws/oai"
 ## Identify.
 oaih_identify(baseurl)
 ## List metadata formats.
 oaih_list_metadata_formats(baseurl)
 ## List sets.
 sets <- oaih_list_sets(baseurl)
-sets
-## List records in the 'theses' set.
-spec <- unlist(sets[sets[, "setName"] == "Type = Thesis", "setSpec"])
+head(sets, 20L)
+## List records in the 'year 1986' set.
+spec <- "publications:year1986"
 x <- oaih_list_records(baseurl, set = spec)
-## Drop deleted records and extract the metadata.
+## Extract the metadata.
 m <- x[, "metadata"]
 m <- oaih_transform(m[lengths(m) > 0L])
 ## Find the most frequent keywords.
-sep <- "[[:space:]]*/[[:space:]]*"
-keywords <- unlist(strsplit(unlist(m[, "subject"]), sep))
+keywords <- unlist(m[, "subject"])
+keywords <- keywords[!startsWith(keywords, "/dk/atira/pure")]
 head(sort(table(keywords), decreasing = TRUE))
 ##
 }, error = identity)

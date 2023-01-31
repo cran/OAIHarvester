@@ -21,7 +21,7 @@
 
 \title{Metadata Harvesting with R and OAI-PMH}
 \author{Kurt Hornik}
-\date{2017-07-14}
+\date{2023-01-31}
 
 %% \VignetteIndexEntry{Metadata Harvesting with R and OAI-PMH}
 
@@ -130,8 +130,8 @@ use to issue an additional request (and repeat until completion).
 
 The R package \pkg{OAIHarvester} provides functions for performing each
 of the six OAI-PMH requests, using, respectively, packages \pkg{curl}
-\cite{oaih:Ooms:2017}) and \pkg{xml2}
-\cite{oaih:Wickham+Hester+Ooms:2017} for HTTP and XML processing.  List
+\cite{oaih:Ooms:2023}) and \pkg{xml2}
+\cite{oaih:Wickham+Hester+Ooms:2021} for HTTP and XML processing.  List
 requests will automatically be re-issued until complete results are
 obtained.  The names of these verb functions start with `\verb|oaih|'
 and follow a ``combine words with underscores'' scheme (e.g.,
@@ -189,18 +189,19 @@ constant sets of variables) applies for all transformations of OAI-PMH
 XML results.  Transformations can be added by assigning functions in the
 (currently internal) environment \verb|oaih_transform_methods_db|.
 
-As an example consider \ePub{}, an electronic publication platform for
-research output provided by WU (Wirtschaftsuniversit\"at Wien), which
-provides an OAI repository at \url{https://epub.wu.ac.at/cgi/oai2}.
+As an example consider WU Research, an electronic publication platform
+for research output provided by WU (Wirtschaftsuniversit\"at Wien),
+which provides an OAI repository at
+\url{https://research.wu.ac.at/ws/oai}. 
 
 <<>>=
 library("OAIHarvester")
-baseurl <- "https://epub.wu.ac.at/cgi/oai2"
-if(inherits(tryCatch(oaih_identify(baseurl), error = identity), "error")) q()
+baseurl <- "https://research.wu.ac.at/ws/oai"
 @ 
 
 % If we print raw XML, ensure sanity.
 <<echo=FALSE,results=hide>>=
+if(inherits(tryCatch(oaih_identify(baseurl), error = identity), "error")) q()
 require("xml2")
 options(warnPartialMatchArgs = FALSE)
 options(width = 80)
@@ -217,12 +218,12 @@ repository provides no compression support, and
 \Sexpr{length(x$description)} % $
 further description entries of kind
 <<>>=
-sapply(x$description, xml_name)
+vapply(x$description, xml_name, "")
 @ %
-where entry 1 indicates that the repository complies with the OAI
+where entry 2 indicates that the repository complies with the OAI
 format for unique record identifiers:
 <<>>=
-oaih_transform(x$description[[1L]])
+oaih_transform(x$description[[2L]])
 @ 
 
 We can use \verb|oaih_list_metadata_formats| and \verb|oaih_list_sets|
@@ -232,16 +233,11 @@ oaih_list_metadata_formats(baseurl)
 sets <- oaih_list_sets(baseurl)
 rbind(head(sets, 3L), tail(sets, 3L))
 @ 
-Only the mandatory Dublin Core format is offered, and there is a fairly
-refined set hierarchy for selective harvesting.  If we only want the
-doctoral theses, we need the spec of the set corresponding to type
-theses: 
+The available formats include the mandatory Dublin Core format, and
+there is a fairly refined set hierarchy for selective harvesting.  To
+get all publications from year 2005, we can use
 <<>>=
-spec <- unlist(sets[sets[, "setName"] == "Type = Thesis", "setSpec"])
-@ 
-To obtain all records for the theses:
-<<>>=
-x <- oaih_list_records(baseurl, set = spec)
+x <- oaih_list_records(baseurl, set = "publications:year2005")
 @ 
 This gives a ``list matrix'' with observations of \Sexpr{ncol(x)}
 variables on \Sexpr{nrow(x)} items:
@@ -260,50 +256,9 @@ dim(m)
 giving observations on the 15 (simple) Dublin Core elements:
 <<>>=
 colnames(m)
-@ 
+@
 
-%% As \ePub{} lists the supervisors in the `contributor' Dublin Core
-%% element,
-%% <<eval=FALSE>>=
-%% m[grep("Hornik", m[ , "contributor"]), ]
-%% @ %
-%% % Massage output ...
-%% <<echo=FALSE>>=
-%% m1 <- m[grep("Hornik", m[ , "contributor"]), ]
-%% m1[] <- lapply(m1,
-%%                function(s) {
-%%                    long <- nchar(s, type = "c") > 60L
-%%                    paste(substr(s, 1L, 60L),
-%%                          ifelse(long, " [truncated]", ""),
-%%                          sep = "")
-%%                })
-%% m1
-%% @ %
-%% can be used to obtain the metadata for doctorate theses available from
-%% \ePub{} and co-supervised by myself.  Note that in Dublin Core, all
-%% elements are optional and repeatable, so that there may be arbitrarily
-%% many entries for each of the 15 variables, making it natural to transform
-%% DC metadata to lists of character vectors.
-%%
-%% All theses are available as PDF:
-%% <<>>=
-%% table(unlist(m[, "format"]))
-%% @ 
-%% and 2008 was a very busy year for theses written in German:
-%% <<>>=
-%% table(unlist(m[, "date"]), unlist(m[, "language"]))
-%% @ %
-%% (We can recognize `\verb|ger|' as ``german'', but realize it is not the
-%% 3-letter ISO 639-3 code we might have expected.  In fact, the Dublin
-%% Core specification for `language'
-%% (\url{https://dublincore.org/documents/dcmi-terms/#terms-language}) says
-%% ``Recommended best practice is to use a controlled vocabulary such as
-%% RFC 4646'', which (see \url{https://www.rfc-editor.org/rfc/rfc4646})
-%% uses ISO 639-1 and ISO 639-2 for two and three letter language tags,
-%% respectively.  See e.g.\ package \pkg{ISOcodes}
-%% \citep{oaih:Buchta+Hornik:2009} for ISO language code details and data.)
-
-Finally, the topics of the theses are available in the `subject' DC
+The topics of the records are available in the `subject' DC
 variable, with comment ``Typically, the subject will be represented
 using keywords, key phrases, or classification codes. Recommended best
 practice is to use a controlled vocabulary.'' (see
@@ -312,47 +267,52 @@ without a more detailed syntactic or semantic specification.
 
 Inspecting the output of \verb|m[, "subject"]|, e.g.,
 <<>>=
-m[c(1L, 6L, 7L), "subject"]
+m[head(which(lengths(m[, "subject"]) > 0), 3L), "subject"]
 @ 
-suggests that ``keywords'' are separated by slashes, so we can obtain
+shows that ``keywords'' follow a common scheme of
+\verb|/dk/atira/pure/keywords| URNs, so we can obtain
 all keywords via
 <<>>=
-sep <- "[[:space:]]*/[[:space:]]*"
-keywords_by_thesis <-
-    strsplit(unlist(lapply(m[, "subject"],  paste, collapse = " / ")),
-             sep)
-keywords <- unlist(keywords_by_thesis)
+keywords <- unlist(m[, "subject"])
+keywords <- keywords[!startsWith(keywords, "/dk/atira/pure")]
 @ 
-giving a total of \Sexpr{length(keywords)} keywords.  Most of these only
+giving a total of \Sexpr{length(keywords)} keywords.  Many of these only
 occur once:
 <<>>=
 counts <- table(keywords)
 table(counts)
 @ 
-(re-iterating the above comment on using controlled vocabularies).  The
+The
 most frequently used keywords are
 <<>>=
-sort(counts[counts >= 3L], decreasing = TRUE)
+sort(counts[counts >= 10L], decreasing = TRUE)
 @ 
-which unfortunately does not include `R': but there is at least one such
-entry
+showing quite a busy year for the old Research Report Series of the
+Statistics and Mathematics unit.
+
+To find the records co-authored by myself, one can use
 <<>>=
-counts["R"]
-@ 
-from David Meyer's 2003 thesis
+pos <- which(vapply(m[, "creator"],
+                    function(e) any(startsWith(e, "Hornik")),
+                    NA))
+@
+(note that each creator entry is a character vector of author names).
+This finds \Sexpr{length(pos)} records:
 <<>>=
-lapply(m[sapply(keywords_by_thesis, function(kw) any(kw == "R")),
-         c("title", "creator")],
-       strwrap)
-@ 
-whereas Ingo Feinerer's thesis on text mining (describing in particular
-the R text mining infrastructure provided by package \pkg{tm}
-\citep{oaih:Feinerer:2008, oaih:Feinerer+Hornik+Meyer:2008}) has
+unlist(m[pos, "title"])
+@
+of various types:
 <<>>=
-m[grep("^Feinerer", unlist(m[, "creator"])),
-  c("title", "creator", "subject")]
+table(unlist(m[pos, "type"]))
+@
+some of which have keywords:
+<<>>=
+pos <- pos[lengths(m[pos, "subject"]) > 0L]
+@
+Only one of these is somewhat useful:
+<<>>=
+unique(m[pos, "subject"])
 @ 
-(again re-iterating the above comment about controlled vocabularies).
 
 Note that OAI-PMH objects obtained by OAI-PMH requests and subsequent
 transformations are made up of both character vectors and XML nodes from
