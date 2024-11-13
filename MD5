@@ -1,4 +1,4 @@
-0c1c1ec987a40b89dd8625cb90c33bc8 *DESCRIPTION
+97a212a703ca0df268726e54e075357c *DESCRIPTION
 efb4747f9c2d3c63bcc9a5c73667c3dc *NAMESPACE
 d6f1b4b825451ee6bf24f86adf27b7d1 *R/apply.R
 385c341deabe63a7b35c37faf26806d6 *R/get.R
@@ -10,15 +10,15 @@ a767d54cbf0350f47e277d58954bf6aa *R/harvest.R
 b2f91eb982f04fc21041e660604af7de *R/transform.R
 8a53eadaf6941bf763e6ea265f69a814 *R/utils.R
 c7b6abf143752c24d0bd19394e330144 *R/verb.R
-7e17b1d70489a8c29b6c0853a099b376 *build/vignette.rds
+2f111b39ed3e5ebe3c8b6285ece8808a *build/vignette.rds
 e29e4233430a2bee387d283063545013 *inst/doc/oaih.R
 e97f62ce4f37b40f91d6e710765a95e3 *inst/doc/oaih.Rnw
-8147fce81aaf46aa39194e940aba3a96 *inst/doc/oaih.pdf
+a852fea18ab5e59024bf44bda1e2d6df *inst/doc/oaih.pdf
 778b9802e4a712550e97a8402aae7a5c *inst/po/en@quot/LC_MESSAGES/R-OAIHarvester.mo
-8e06f94c0ce65bc576563261ca8d88e5 *man/harvest.Rd
+f2776ee0711a6fe97e6a0cfcff7308b6 *man/harvest.Rd
 c00fdef8c43051f9a5c3ce0f65fe6ce8 *man/providers.Rd
 a842f7e7a294b1b40de85e0ad606772c *man/serialize.Rd
-f299e8a1fd177b528653f923c16d9e8d *man/size.Rd
+aba297b625e29f6e4af13769e0f86f18 *man/size.Rd
 5462ed91deca2bf63c3cb47304c6a189 *man/transform.Rd
 84561c642e19ca0d8cb678896b226aea *man/verb.Rd
 3112807531a0bc6edf6ae7b33117bb2b *po/R-OAIHarvester.pot

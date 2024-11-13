@@ -11,7 +11,7 @@ oaih_size(baseurl, from = NULL, until = NULL, set = NULL)
 \arguments{
   \item{baseurl}{a character string giving the base URL of the
     repository.}
-  \item{from, until}{character strings or \link[base:Dates]{Date} or
+  \item{from, until}{character strings or \link[base]{Date} or
     \link[base:DateTimeClasses]{POSIXt date/time objects} giving
     datestamps to be used as lower or upper bounds, respectively, for
     datestamp-based selective harvesting (i.e., only consider records
